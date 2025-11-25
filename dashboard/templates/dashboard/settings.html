@@ -1,0 +1,436 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/settings.css' %}">
+{% endblock %}
+
+{% block title %}Settings - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><i class="fas fa-cog"></i> Settings</h1>
+            <p class="subtitle">System configuration and preferences</p>
+        </div>
+        
+        <div class="header-actions">
+            <button class="btn-save" onclick="saveSettings()">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Navigation -->
+    <div class="settings-container">
+        <div class="settings-sidebar">
+            <div class="settings-menu">
+                <button class="menu-item active" onclick="showTab('general')">
+                    <i class="fas fa-building"></i>
+                    <span>General</span>
+                </button>
+                <button class="menu-item" onclick="showTab('company')">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Company Info</span>
+                </button>
+                <button class="menu-item" onclick="showTab('notifications')">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </button>
+                <button class="menu-item" onclick="showTab('appearance')">
+                    <i class="fas fa-palette"></i>
+                    <span>Appearance</span>
+                </button>
+                <button class="menu-item" onclick="showTab('security')">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Security</span>
+                </button>
+                <button class="menu-item" onclick="showTab('backup')">
+                    <i class="fas fa-database"></i>
+                    <span>Backup & Restore</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="settings-content">
+            <!-- General Settings -->
+            <div id="general-tab" class="settings-tab active">
+                <h2><i class="fas fa-building"></i> General Settings</h2>
+                
+                <div class="setting-group">
+                    <label class="setting-label">System Name</label>
+                    <input type="text" class="setting-input" value="CemERP - Cement Industry Management">
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Default Currency</label>
+                    <select class="setting-input">
+                        <option value="INR" selected>Indian Rupee (₹)</option>
+                        <option value="USD">US Dollar ($)</option>
+                        <option value="EUR">Euro (€)</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Date Format</label>
+                    <select class="setting-input">
+                        <option value="DD/MM/YYYY" selected>DD/MM/YYYY</option>
+                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Time Zone</label>
+                    <select class="setting-input">
+                        <option value="Asia/Kolkata" selected>Asia/Kolkata (IST)</option>
+                        <option value="UTC">UTC</option>
+                        <option value="America/New_York">America/New York</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Language</label>
+                    <select class="setting-input">
+                        <option value="en" selected>English</option>
+                        <option value="hi">हिन्दी (Hindi)</option>
+                        <option value="mr">मराठी (Marathi)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Company Info -->
+            <div id="company-tab" class="settings-tab">
+                <h2><i class="fas fa-briefcase"></i> Company Information</h2>
+                
+                <div class="setting-group">
+                    <label class="setting-label">Company Name</label>
+                    <input type="text" class="setting-input" value="ABC Cement Industries Pvt. Ltd.">
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">GST Number</label>
+                    <input type="text" class="setting-input" value="27AAAAA0000A1Z5">
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">PAN Number</label>
+                    <input type="text" class="setting-input" value="AAAAA0000A">
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Address</label>
+                    <textarea class="setting-input" rows="3">123, Industrial Area, Phase 2
+Mumbai, Maharashtra - 400001
+India</textarea>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Phone Number</label>
+                    <input type="tel" class="setting-input" value="+91 22 1234 5678">
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Email Address</label>
+                    <input type="email" class="setting-input" value="contact@abccement.com">
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Website</label>
+                    <input type="url" class="setting-input" value="https://www.abccement.com">
+                </div>
+            </div>
+
+            <!-- Notifications -->
+            <div id="notifications-tab" class="settings-tab">
+                <h2><i class="fas fa-bell"></i> Notification Settings</h2>
+                
+                <div class="setting-group toggle-group">
+                    <div class="toggle-content">
+                        <label class="setting-label">Email Notifications</label>
+                        <p class="setting-description">Receive email alerts for important events</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-group toggle-group">
+                    <div class="toggle-content">
+                        <label class="setting-label">Low Stock Alerts</label>
+                        <p class="setting-description">Get notified when stock falls below reorder level</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-group toggle-group">
+                    <div class="toggle-content">
+                        <label class="setting-label">Payment Reminders</label>
+                        <p class="setting-description">Send reminders for pending payments</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-group toggle-group">
+                    <div class="toggle-content">
+                        <label class="setting-label">Order Updates</label>
+                        <p class="setting-description">Notifications for order status changes</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-group toggle-group">
+                    <div class="toggle-content">
+                        <label class="setting-label">Delivery Notifications</label>
+                        <p class="setting-description">Alerts when orders are delivered</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Appearance -->
+            <div id="appearance-tab" class="settings-tab">
+                <h2><i class="fas fa-palette"></i> Appearance Settings</h2>
+                
+                <div class="setting-group">
+                    <label class="setting-label">Theme</label>
+                    <div class="theme-options">
+                        <div class="theme-option active">
+                            <div class="theme-preview light">
+                                <div class="preview-header"></div>
+                                <div class="preview-content"></div>
+                            </div>
+                            <span>Light</span>
+                        </div>
+                        <div class="theme-option">
+                            <div class="theme-preview dark">
+                                <div class="preview-header"></div>
+                                <div class="preview-content"></div>
+                            </div>
+                            <span>Dark</span>
+                        </div>
+                        <div class="theme-option">
+                            <div class="theme-preview auto">
+                                <div class="preview-header"></div>
+                                <div class="preview-content"></div>
+                            </div>
+                            <span>Auto</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Primary Color</label>
+                    <div class="color-options">
+                        <button class="color-option" style="background: #4f46e5;" title="Indigo"></button>
+                        <button class="color-option" style="background: #3b82f6;" title="Blue"></button>
+                        <button class="color-option" style="background: #10b981;" title="Green"></button>
+                        <button class="color-option" style="background: #f59e0b;" title="Orange"></button>
+                        <button class="color-option" style="background: #ef4444;" title="Red"></button>
+                        <button class="color-option" style="background: #8b5cf6;" title="Purple"></button>
+                    </div>
+                </div>
+
+                <div class="setting-group toggle-group">
+                    <div class="toggle-content">
+                        <label class="setting-label">Sidebar Collapsed by Default</label>
+                        <p class="setting-description">Start with sidebar minimized</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-group toggle-group">
+                    <div class="toggle-content">
+                        <label class="setting-label">Show Animations</label>
+                        <p class="setting-description">Enable smooth transitions and animations</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Security -->
+            <div id="security-tab" class="settings-tab">
+                <h2><i class="fas fa-shield-alt"></i> Security Settings</h2>
+                
+                <div class="setting-group">
+                    <label class="setting-label">Change Password</label>
+                    <button class="btn-secondary">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                </div>
+
+                <div class="setting-group toggle-group">
+                    <div class="toggle-content">
+                        <label class="setting-label">Two-Factor Authentication</label>
+                        <p class="setting-description">Add extra security to your account</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Session Timeout</label>
+                    <select class="setting-input">
+                        <option value="15">15 minutes</option>
+                        <option value="30" selected>30 minutes</option>
+                        <option value="60">1 hour</option>
+                        <option value="120">2 hours</option>
+                        <option value="0">Never</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Activity Log</label>
+                    <button class="btn-secondary">
+                        <i class="fas fa-history"></i> View Login History
+                    </button>
+                </div>
+            </div>
+
+            <!-- Backup & Restore -->
+            <div id="backup-tab" class="settings-tab">
+                <h2><i class="fas fa-database"></i> Backup & Restore</h2>
+                
+                <div class="setting-group toggle-group">
+                    <div class="toggle-content">
+                        <label class="setting-label">Automatic Backup</label>
+                        <p class="setting-description">Automatically backup data daily</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Backup Frequency</label>
+                    <select class="setting-input">
+                        <option value="daily" selected>Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Last Backup</label>
+                    <p class="setting-info">November 23, 2025 at 2:00 AM</p>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Manual Backup</label>
+                    <button class="btn-secondary">
+                        <i class="fas fa-download"></i> Create Backup Now
+                    </button>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Restore from Backup</label>
+                    <button class="btn-secondary">
+                        <i class="fas fa-upload"></i> Restore Data
+                    </button>
+                </div>
+
+                <div class="alert-box warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <strong>Warning:</strong> Restoring from backup will overwrite all current data. Make sure to create a backup before restoring.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.settings-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Remove active from all menu items
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Show selected tab
+        document.getElementById(tabName + '-tab').classList.add('active');
+        
+        // Add active to clicked menu item
+        event.target.closest('.menu-item').classList.add('active');
+    }
+
+    function saveSettings() {
+        // Show success notification
+        const notification = document.createElement('div');
+        notification.className = 'notification success';
+        notification.innerHTML = '<i class="fas fa-check-circle"></i> Settings saved successfully!';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    // Theme option click handler
+    document.querySelectorAll('.theme-option').forEach(option => {
+        option.addEventListener('click', function() {
+            document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

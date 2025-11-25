@@ -1,0 +1,265 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block page_title %}Vendors Management{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor-pages.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="vendors-container">
+    <!-- Page Header -->
+    <div class="page-header-card">
+        <div class="header-content">
+            <h1 class="page-heading">
+                <i class="fas fa-store"></i>
+                Vendors Management
+            </h1>
+            <p class="page-description">Manage your customers and vendors</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'dashboard:vendor_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Add New Vendor
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-row">
+        <div class="stat-mini-card">
+            <div class="stat-mini-icon blue">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-mini-content">
+                <h3>{{ total_vendors }}</h3>
+                <p>Total Vendors</p>
+            </div>
+        </div>
+        
+        <div class="stat-mini-card">
+            <div class="stat-mini-icon green">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-mini-content">
+                <h3>{{ active_vendors }}</h3>
+                <p>Active Vendors</p>
+            </div>
+        </div>
+        
+        <div class="stat-mini-card">
+            <div class="stat-mini-icon orange">
+                <i class="fas fa-pause-circle"></i>
+            </div>
+            <div class="stat-mini-content">
+                <h3>{{ total_vendors|add:"-"|add:active_vendors }}</h3>
+                <p>Inactive</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="filter-section">
+        <form method="get" class="filter-form">
+            <div class="search-group">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" class="search-input" 
+                       placeholder="Search by name, company, phone, email, or city..." 
+                       value="{{ search_query }}">
+            </div>
+            
+            <select name="status" class="filter-select">
+                <option value="">All Status</option>
+                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+            </select>
+            
+            <button type="submit" class="btn btn-secondary">
+                <i class="fas fa-filter"></i>
+                Filter
+            </button>
+            
+            {% if search_query or status_filter %}
+            <a href="{% url 'dashboard:vendor_list' %}" class="btn btn-clear">
+                <i class="fas fa-times"></i>
+                Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Vendors Table -->
+    <div class="table-card">
+        {% if vendors %}
+        <div class="table-responsive">
+            <table class="data-table-modern">
+                <thead>
+                    <tr>
+                        <th>Vendor Details</th>
+                        <th>Contact</th>
+                        <th>Location</th>
+                        <th>Credit Info</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vendor in vendors %}
+                    <tr>
+                        <td>
+                            <div class="vendor-info">
+                                <div class="vendor-avatar">
+                                    {{ vendor.name|slice:":1"|upper }}
+                                </div>
+                                <div class="vendor-details">
+                                    <strong class="vendor-name">{{ vendor.name }}</strong>
+                                    {% if vendor.company_name %}
+                                    <span class="vendor-company">{{ vendor.company_name }}</span>
+                                    {% endif %}
+                                    {% if vendor.gst_number %}
+                                    <span class="vendor-gst">GST: {{ vendor.gst_number }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="contact-info">
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>{{ vendor.phone }}</span>
+                                </div>
+                                {% if vendor.email %}
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>{{ vendor.email }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="location-info">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ vendor.city }}, {{ vendor.state }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="credit-info">
+                                <div class="credit-row">
+                                    <span class="credit-label">Limit:</span>
+                                    <span class="credit-value">₹{{ vendor.credit_limit|floatformat:2 }}</span>
+                                </div>
+                                <div class="credit-row">
+                                    <span class="credit-label">Outstanding:</span>
+                                    <span class="credit-value outstanding">₹{{ vendor.outstanding_balance|floatformat:2 }}</span>
+                                </div>
+                                <div class="credit-row">
+                                    <span class="credit-label">Available:</span>
+                                    <span class="credit-value available">₹{{ vendor.available_credit|floatformat:2 }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if vendor.is_active %}
+                            <span class="status-badge status-active">
+                                <i class="fas fa-check-circle"></i>
+                                Active
+                            </span>
+                            {% else %}
+                            <span class="status-badge status-inactive">
+                                <i class="fas fa-pause-circle"></i>
+                                Inactive
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'dashboard:vendor_update' vendor.pk %}" 
+                                   class="btn-action btn-edit" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button onclick="confirmDelete({{ vendor.pk }}, '{{ vendor.name }}')" 
+                                        class="btn-action btn-delete" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="pagination-container">
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+                   class="page-link">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+                   class="page-link">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                {% endif %}
+                
+                <span class="page-info">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+                
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+                   class="page-link">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+                   class="page-link">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <i class="fas fa-store"></i>
+            <h3>No vendors found</h3>
+            <p>
+                {% if search_query or status_filter %}
+                No vendors match your search criteria. Try adjusting your filters.
+                {% else %}
+                Start by adding your first vendor to the system.
+                {% endif %}
+            </p>
+            {% if not search_query and not status_filter %}
+            <a href="{% url 'dashboard:vendor_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Add First Vendor
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal (will be handled by JavaScript) -->
+<form id="deleteForm" method="post" style="display: none;">
+    {% csrf_token %}
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDelete(vendorId, vendorName) {
+    if (confirm(`Are you sure you want to deactivate vendor "${vendorName}"?`)) {
+        const form = document.getElementById('deleteForm');
+        form.action = `/vendors/${vendorId}/delete/`;
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

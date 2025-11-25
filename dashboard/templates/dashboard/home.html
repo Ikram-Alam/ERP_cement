@@ -1,0 +1,199 @@
+{% extends 'dashboard/base.html' %}
+
+{% block page_title %}Dashboard Home{% endblock %}
+
+{% block content %}
+<div class="dashboard-home">
+    <!-- Quick Stats Grid -->
+    <div class="stats-grid">
+        <!-- Total Orders Card -->
+        <div class="stat-card card-blue">
+            <div class="stat-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-details">
+                <h3 class="stat-value">{{ stats.total_orders }}</h3>
+                <p class="stat-label">Total Orders</p>
+                <span class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 12% from last month
+                </span>
+            </div>
+        </div>
+        
+        <!-- Pending Orders Card -->
+        <div class="stat-card card-orange">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-details">
+                <h3 class="stat-value">{{ stats.pending_orders }}</h3>
+                <p class="stat-label">Pending Orders</p>
+                <span class="stat-change">
+                    <i class="fas fa-sync"></i> In progress
+                </span>
+            </div>
+        </div>
+        
+        <!-- Delivered Today Card -->
+        <div class="stat-card card-green">
+            <div class="stat-icon">
+                <i class="fas fa-truck"></i>
+            </div>
+            <div class="stat-details">
+                <h3 class="stat-value">{{ stats.delivered_today }}</h3>
+                <p class="stat-label">Delivered Today</p>
+                <span class="stat-change positive">
+                    <i class="fas fa-check-circle"></i> {{ stats.active_drivers }} drivers active
+                </span>
+            </div>
+        </div>
+        
+        <!-- Stock Level Card -->
+        <div class="stat-card card-purple">
+            <div class="stat-icon">
+                <i class="fas fa-boxes"></i>
+            </div>
+            <div class="stat-details">
+                <h3 class="stat-value">{{ stats.total_stock|floatformat:0 }}</h3>
+                <p class="stat-label">Total Bags in Stock</p>
+                <span class="stat-change {% if stats.low_stock_alerts > 0 %}warning{% else %}positive{% endif %}">
+                    <i class="fas fa-exclamation-triangle"></i> {{ stats.low_stock_alerts }} low stock alert{{ stats.low_stock_alerts|pluralize }}
+                </span>
+            </div>
+        </div>
+        
+        <!-- Revenue Card -->
+        <div class="stat-card card-teal">
+            <div class="stat-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-details">
+                <h3 class="stat-value">₹{{ stats.revenue_today|floatformat:0 }}</h3>
+                <p class="stat-label">Revenue Today</p>
+                <span class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 8% from yesterday
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Dashboard Content Grid -->
+    <div class="dashboard-grid">
+        <!-- Alerts Section -->
+        <div class="dashboard-card alerts-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-bell"></i>
+                    Recent Alerts
+                </h2>
+                <a href="#" class="view-all-link">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="card-body">
+                <div class="alerts-list">
+                    {% for alert in alerts %}
+                    <div class="alert-item alert-{{ alert.type }}">
+                        <div class="alert-icon">
+                            <i class="fas fa-{{ alert.icon }}"></i>
+                        </div>
+                        <div class="alert-content">
+                            <p class="alert-message">{{ alert.message }}</p>
+                            <span class="alert-time">{{ alert.time }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Deliveries Section -->
+        <div class="dashboard-card deliveries-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-shipping-fast"></i>
+                    Recent Deliveries
+                </h2>
+                <a href="#" class="view-all-link">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Vendor</th>
+                                <th>Bags</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for delivery in recent_deliveries %}
+                            <tr>
+                                <td class="order-id">{{ delivery.order_id }}</td>
+                                <td>{{ delivery.vendor }}</td>
+                                <td><strong>{{ delivery.bags }}</strong></td>
+                                <td>
+                                    <span class="status-badge {% if delivery.status == 'Delivered' %}status-success{% else %}status-warning{% endif %}">
+                                        {{ delivery.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions Card -->
+        <div class="dashboard-card quick-actions-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-bolt"></i>
+                    Quick Actions
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="quick-actions-grid">
+                    <a href="#" class="action-btn action-primary">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>New Order</span>
+                    </a>
+                    <a href="#" class="action-btn action-success">
+                        <i class="fas fa-check-double"></i>
+                        <span>Mark Delivered</span>
+                    </a>
+                    <a href="#" class="action-btn action-info">
+                        <i class="fas fa-file-invoice"></i>
+                        <span>Generate Report</span>
+                    </a>
+                    <a href="#" class="action-btn action-warning">
+                        <i class="fas fa-box"></i>
+                        <span>Update Stock</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Performance Chart Placeholder -->
+        <div class="dashboard-card chart-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-chart-line"></i>
+                    Performance Overview
+                </h2>
+                <div class="chart-filters">
+                    <button class="filter-btn active">Week</button>
+                    <button class="filter-btn">Month</button>
+                    <button class="filter-btn">Year</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-area"></i>
+                    <p>Chart will be implemented with Chart.js in next phase</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

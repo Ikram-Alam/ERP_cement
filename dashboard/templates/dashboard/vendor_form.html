@@ -1,0 +1,289 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block page_title %}{% if object %}Edit Vendor{% else %}Add New Vendor{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor-pages.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="vendor-form-container">
+    <!-- Page Header -->
+    <div class="page-header-card">
+        <div class="header-content">
+            <h1 class="page-heading">
+                <i class="fas fa-{% if object %}edit{% else %}plus{% endif %}"></i>
+                {% if object %}Edit Vendor{% else %}Add New Vendor{% endif %}
+            </h1>
+            <p class="page-description">
+                {% if object %}Update vendor information{% else %}Fill in the details to add a new vendor{% endif %}
+            </p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'dashboard:vendor_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form method="post" id="vendorForm" class="vendor-form">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+        
+        <!-- Basic Information Section -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-user"></i>
+                Basic Information
+            </h2>
+            
+            <div class="form-grid">
+                <div class="form-group {% if form.name.errors %}has-error{% endif %}">
+                    <label for="{{ form.name.id_for_label }}" class="form-label required">
+                        <i class="fas fa-user"></i>
+                        Vendor Name
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <span class="error-message">{{ form.name.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group {% if form.company_name.errors %}has-error{% endif %}">
+                    <label for="{{ form.company_name.id_for_label }}" class="form-label">
+                        <i class="fas fa-building"></i>
+                        Company Name
+                    </label>
+                    {{ form.company_name }}
+                    {% if form.company_name.errors %}
+                    <span class="error-message">{{ form.company_name.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-address-book"></i>
+                Contact Information
+            </h2>
+            
+            <div class="form-grid">
+                <div class="form-group {% if form.phone.errors %}has-error{% endif %}">
+                    <label for="{{ form.phone.id_for_label }}" class="form-label required">
+                        <i class="fas fa-phone"></i>
+                        Phone Number
+                    </label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                    <span class="error-message">{{ form.phone.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group {% if form.email.errors %}has-error{% endif %}">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                        <i class="fas fa-envelope"></i>
+                        Email Address
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <span class="error-message">{{ form.email.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Address Section -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-map-marker-alt"></i>
+                Address Details
+            </h2>
+            
+            <div class="form-group {% if form.address.errors %}has-error{% endif %}">
+                <label for="{{ form.address.id_for_label }}" class="form-label required">
+                    <i class="fas fa-home"></i>
+                    Street Address
+                </label>
+                {{ form.address }}
+                {% if form.address.errors %}
+                <span class="error-message">{{ form.address.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-grid grid-3">
+                <div class="form-group {% if form.city.errors %}has-error{% endif %}">
+                    <label for="{{ form.city.id_for_label }}" class="form-label required">
+                        <i class="fas fa-city"></i>
+                        City
+                    </label>
+                    {{ form.city }}
+                    {% if form.city.errors %}
+                    <span class="error-message">{{ form.city.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group {% if form.state.errors %}has-error{% endif %}">
+                    <label for="{{ form.state.id_for_label }}" class="form-label required">
+                        <i class="fas fa-map"></i>
+                        State
+                    </label>
+                    {{ form.state }}
+                    {% if form.state.errors %}
+                    <span class="error-message">{{ form.state.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group {% if form.pincode.errors %}has-error{% endif %}">
+                    <label for="{{ form.pincode.id_for_label }}" class="form-label required">
+                        <i class="fas fa-map-pin"></i>
+                        Pincode
+                    </label>
+                    {{ form.pincode }}
+                    {% if form.pincode.errors %}
+                    <span class="error-message">{{ form.pincode.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Information Section -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-briefcase"></i>
+                Business Information
+            </h2>
+            
+            <div class="form-grid">
+                <div class="form-group {% if form.gst_number.errors %}has-error{% endif %}">
+                    <label for="{{ form.gst_number.id_for_label }}" class="form-label">
+                        <i class="fas fa-file-invoice"></i>
+                        GST Number
+                    </label>
+                    {{ form.gst_number }}
+                    <small class="form-help">Optional: Enter if registered under GST</small>
+                    {% if form.gst_number.errors %}
+                    <span class="error-message">{{ form.gst_number.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Credit Information Section -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-credit-card"></i>
+                Credit Information
+            </h2>
+            
+            <div class="form-grid">
+                <div class="form-group {% if form.credit_limit.errors %}has-error{% endif %}">
+                    <label for="{{ form.credit_limit.id_for_label }}" class="form-label">
+                        <i class="fas fa-wallet"></i>
+                        Credit Limit (₹)
+                    </label>
+                    {{ form.credit_limit }}
+                    <small class="form-help">Maximum credit amount allowed</small>
+                    {% if form.credit_limit.errors %}
+                    <span class="error-message">{{ form.credit_limit.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group {% if form.outstanding_balance.errors %}has-error{% endif %}">
+                    <label for="{{ form.outstanding_balance.id_for_label }}" class="form-label">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Outstanding Balance (₹)
+                    </label>
+                    {{ form.outstanding_balance }}
+                    <small class="form-help">Current outstanding amount</small>
+                    {% if form.outstanding_balance.errors %}
+                    <span class="error-message">{{ form.outstanding_balance.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if object %}
+            <div class="credit-summary">
+                <div class="summary-item">
+                    <span class="summary-label">Available Credit:</span>
+                    <span class="summary-value">₹{{ object.available_credit|floatformat:2 }}</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-{% if object %}save{% else %}plus-circle{% endif %}"></i>
+                {% if object %}Update Vendor{% else %}Create Vendor{% endif %}
+            </button>
+            <a href="{% url 'dashboard:vendor_list' %}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i>
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.getElementById('vendorForm');
+    
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Check required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('error');
+            } else {
+                field.classList.remove('error');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields');
+        }
+    });
+    
+    // Calculate available credit
+    const creditLimit = document.querySelector('[name="credit_limit"]');
+    const outstanding = document.querySelector('[name="outstanding_balance"]');
+    
+    if (creditLimit && outstanding) {
+        [creditLimit, outstanding].forEach(field => {
+            field.addEventListener('input', updateAvailableCredit);
+        });
+    }
+    
+    function updateAvailableCredit() {
+        const limit = parseFloat(creditLimit.value) || 0;
+        const outstandingAmt = parseFloat(outstanding.value) || 0;
+        const available = limit - outstandingAmt;
+        
+        // Update display if summary exists
+        const summaryValue = document.querySelector('.credit-summary .summary-value');
+        if (summaryValue) {
+            summaryValue.textContent = `₹${available.toFixed(2)}`;
+        }
+    }
+});
+</script>
+{% endblock %}

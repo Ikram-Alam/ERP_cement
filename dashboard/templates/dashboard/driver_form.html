@@ -1,0 +1,222 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit Driver{% else %}Add Driver{% endif %} - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/driver-pages.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <a href="{% url 'dashboard:driver_list' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Drivers
+        </a>
+        <h1>
+            <i class="fas fa-user-tie"></i>
+            {% if form.instance.pk %}
+            Edit Driver
+            {% else %}
+            Add New Driver
+            {% endif %}
+        </h1>
+    </div>
+</div>
+
+<div class="form-container">
+    <div class="form-card">
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>Please correct the following errors:</strong>
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <li>{{ field }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        
+        <form method="post" id="driverForm" novalidate>
+            {% csrf_token %}
+            
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <h3>
+                    <i class="fas fa-user"></i>
+                    Personal Information
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.name.id_for_label }}">
+                            {{ form.name.label }}
+                            <span class="required">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <span class="error-message">{{ form.name.errors.0 }}</span>
+                        {% endif %}
+                        {% if form.name.help_text %}
+                        <small class="help-text">{{ form.name.help_text }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.phone.id_for_label }}">
+                            {{ form.phone.label }}
+                            <span class="required">*</span>
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                        <span class="error-message">{{ form.phone.errors.0 }}</span>
+                        {% endif %}
+                        {% if form.phone.help_text %}
+                        <small class="help-text">{{ form.phone.help_text }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- License Information Section -->
+            <div class="form-section">
+                <h3>
+                    <i class="fas fa-id-card"></i>
+                    License Information
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="{{ form.license_number.id_for_label }}">
+                            {{ form.license_number.label }}
+                            <span class="required">*</span>
+                        </label>
+                        {{ form.license_number }}
+                        {% if form.license_number.errors %}
+                        <span class="error-message">{{ form.license_number.errors.0 }}</span>
+                        {% endif %}
+                        {% if form.license_number.help_text %}
+                        <small class="help-text">{{ form.license_number.help_text }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vehicle Information Section -->
+            <div class="form-section">
+                <h3>
+                    <i class="fas fa-truck"></i>
+                    Vehicle Information
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.vehicle_number.id_for_label }}">
+                            {{ form.vehicle_number.label }}
+                            <span class="required">*</span>
+                        </label>
+                        {{ form.vehicle_number }}
+                        {% if form.vehicle_number.errors %}
+                        <span class="error-message">{{ form.vehicle_number.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.vehicle_type.id_for_label }}">
+                            {{ form.vehicle_type.label }}
+                            <span class="required">*</span>
+                        </label>
+                        {{ form.vehicle_type }}
+                        {% if form.vehicle_type.errors %}
+                        <span class="error-message">{{ form.vehicle_type.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="{{ form.vehicle_capacity.id_for_label }}">
+                            {{ form.vehicle_capacity.label }}
+                            <span class="required">*</span>
+                        </label>
+                        {{ form.vehicle_capacity }}
+                        {% if form.vehicle_capacity.errors %}
+                        <span class="error-message">{{ form.vehicle_capacity.errors.0 }}</span>
+                        {% endif %}
+                        {% if form.vehicle_capacity.help_text %}
+                        <small class="help-text">{{ form.vehicle_capacity.help_text }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Availability Status Section -->
+            <div class="form-section">
+                <h3>
+                    <i class="fas fa-toggle-on"></i>
+                    Availability Status
+                </h3>
+                <div class="form-group-checkbox">
+                    <label class="checkbox-label">
+                        {{ form.is_active }}
+                        <span>{{ form.is_active.label }}</span>
+                    </label>
+                    {% if form.is_active.help_text %}
+                    <small class="help-text">{{ form.is_active.help_text }}</small>
+                    {% endif %}
+                    {% if form.is_active.errors %}
+                    <span class="error-message">{{ form.is_active.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{% url 'dashboard:driver_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    {% if form.instance.pk %}
+                    Update Driver
+                    {% else %}
+                    Add Driver
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Info Card -->
+    <div class="info-card">
+        <h3><i class="fas fa-info-circle"></i> Driver Information</h3>
+        <ul>
+            <li>
+                <i class="fas fa-check"></i>
+                All fields marked with <span class="required">*</span> are required
+            </li>
+            <li>
+                <i class="fas fa-check"></i>
+                License number must be unique in the system
+            </li>
+            <li>
+                <i class="fas fa-check"></i>
+                Phone number format: +91XXXXXXXXXX
+            </li>
+            <li>
+                <i class="fas fa-check"></i>
+                Vehicle capacity represents maximum bags that can be carried
+            </li>
+            <li>
+                <i class="fas fa-check"></i>
+                Inactive drivers won't be available for order assignments
+            </li>
+        </ul>
+        
+        <div class="quick-tips">
+            <h4><i class="fas fa-lightbulb"></i> Quick Tips</h4>
+            <p>Ensure all driver information is accurate for efficient delivery tracking and management.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

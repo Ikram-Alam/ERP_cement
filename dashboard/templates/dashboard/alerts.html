@@ -1,0 +1,461 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/alerts.css' %}">
+{% endblock %}
+
+{% block title %}Alerts & Notifications - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="alerts-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><i class="fas fa-bell"></i> Alerts & Notifications</h1>
+            <p class="subtitle">System notifications, warnings, and important messages</p>
+        </div>
+        
+        <div class="header-actions">
+            <button class="btn-action" onclick="markAllRead()">
+                <i class="fas fa-check-double"></i> Mark All Read
+            </button>
+            <button class="btn-action" onclick="clearAll()">
+                <i class="fas fa-trash-alt"></i> Clear All
+            </button>
+        </div>
+    </div>
+
+    <!-- Alert Stats -->
+    <div class="alert-stats">
+        <div class="stat-card critical">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Critical</h3>
+                <p class="stat-number">3</p>
+            </div>
+        </div>
+
+        <div class="stat-card warning">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Warnings</h3>
+                <p class="stat-number">8</p>
+            </div>
+        </div>
+
+        <div class="stat-card info">
+            <div class="stat-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Information</h3>
+                <p class="stat-number">12</p>
+            </div>
+        </div>
+
+        <div class="stat-card success">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Success</h3>
+                <p class="stat-number">5</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts List -->
+    <div class="alerts-container">
+        <!-- Critical Alerts -->
+        <div class="alert-item critical unread">
+            <div class="alert-indicator">
+                <div class="pulse-dot"></div>
+            </div>
+            <div class="alert-icon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="alert-content">
+                <h3 class="alert-title">Low Stock Alert - Cement Grade 53</h3>
+                <p class="alert-message">Current stock: 45 bags. Reorder level: 50 bags. Immediate restocking required.</p>
+                <div class="alert-meta">
+                    <span class="alert-time"><i class="far fa-clock"></i> 5 minutes ago</span>
+                    <span class="alert-category"><i class="fas fa-tag"></i> Inventory</span>
+                </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn-view" onclick="viewDetails(this)">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn-dismiss" onclick="dismissAlert(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="alert-item critical unread">
+            <div class="alert-indicator">
+                <div class="pulse-dot"></div>
+            </div>
+            <div class="alert-icon">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <div class="alert-content">
+                <h3 class="alert-title">Payment Overdue - Order #ORD-00042</h3>
+                <p class="alert-message">Payment of ₹125,000.00 is overdue by 15 days. Vendor: Rajesh Traders</p>
+                <div class="alert-meta">
+                    <span class="alert-time"><i class="far fa-clock"></i> 2 hours ago</span>
+                    <span class="alert-category"><i class="fas fa-tag"></i> Finance</span>
+                </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn-view" onclick="viewDetails(this)">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn-dismiss" onclick="dismissAlert(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="alert-item critical">
+            <div class="alert-indicator"></div>
+            <div class="alert-icon">
+                <i class="fas fa-truck"></i>
+            </div>
+            <div class="alert-content">
+                <h3 class="alert-title">Delivery Delayed - Order #ORD-00038</h3>
+                <p class="alert-message">Expected delivery time exceeded by 3 hours. Driver: Ramesh Kumar</p>
+                <div class="alert-meta">
+                    <span class="alert-time"><i class="far fa-clock"></i> 3 hours ago</span>
+                    <span class="alert-category"><i class="fas fa-tag"></i> Dispatch</span>
+                </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn-view" onclick="viewDetails(this)">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn-dismiss" onclick="dismissAlert(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Warning Alerts -->
+        <div class="alert-item warning unread">
+            <div class="alert-indicator">
+                <div class="pulse-dot"></div>
+            </div>
+            <div class="alert-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="alert-content">
+                <h3 class="alert-title">Vehicle Maintenance Due</h3>
+                <p class="alert-message">Vehicle MH-12-AB-1234 is due for maintenance in 2 days. Current mileage: 48,500 km</p>
+                <div class="alert-meta">
+                    <span class="alert-time"><i class="far fa-clock"></i> 1 day ago</span>
+                    <span class="alert-category"><i class="fas fa-tag"></i> Fleet</span>
+                </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn-view" onclick="viewDetails(this)">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn-dismiss" onclick="dismissAlert(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="alert-item warning unread">
+            <div class="alert-indicator">
+                <div class="pulse-dot"></div>
+            </div>
+            <div class="alert-icon">
+                <i class="fas fa-boxes"></i>
+            </div>
+            <div class="alert-content">
+                <h3 class="alert-title">Stock Running Low - Cement Grade 43</h3>
+                <p class="alert-message">Current stock: 85 bags. Warning level: 100 bags. Consider restocking soon.</p>
+                <div class="alert-meta">
+                    <span class="alert-time"><i class="far fa-clock"></i> 1 day ago</span>
+                    <span class="alert-category"><i class="fas fa-tag"></i> Inventory</span>
+                </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn-view" onclick="viewDetails(this)">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn-dismiss" onclick="dismissAlert(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="alert-item warning">
+            <div class="alert-indicator"></div>
+            <div class="alert-icon">
+                <i class="fas fa-user-clock"></i>
+            </div>
+            <div class="alert-content">
+                <h3 class="alert-title">Driver License Expiring Soon</h3>
+                <p class="alert-message">Driver Suresh Patil's license expires in 30 days. License: MH1234567890</p>
+                <div class="alert-meta">
+                    <span class="alert-time"><i class="far fa-clock"></i> 2 days ago</span>
+                    <span class="alert-category"><i class="fas fa-tag"></i> Compliance</span>
+                </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn-view" onclick="viewDetails(this)">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn-dismiss" onclick="dismissAlert(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Alerts -->
+        <div class="alert-item info unread">
+            <div class="alert-indicator">
+                <div class="pulse-dot"></div>
+            </div>
+            <div class="alert-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="alert-content">
+                <h3 class="alert-title">New Order Received - Order #ORD-00045</h3>
+                <p class="alert-message">New order placed by Amit Construction. Total: ₹75,500.00</p>
+                <div class="alert-meta">
+                    <span class="alert-time"><i class="far fa-clock"></i> 30 minutes ago</span>
+                    <span class="alert-category"><i class="fas fa-tag"></i> Orders</span>
+                </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn-view" onclick="viewDetails(this)">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn-dismiss" onclick="dismissAlert(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="alert-item info unread">
+            <div class="alert-indicator">
+                <div class="pulse-dot"></div>
+            </div>
+            <div class="alert-icon">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <div class="alert-content">
+                <h3 class="alert-title">Payment Received - Order #ORD-00040</h3>
+                <p class="alert-message">Full payment of ₹50,000.00 received from Sharma Enterprises</p>
+                <div class="alert-meta">
+                    <span class="alert-time"><i class="far fa-clock"></i> 2 hours ago</span>
+                    <span class="alert-category"><i class="fas fa-tag"></i> Finance</span>
+                </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn-view" onclick="viewDetails(this)">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn-dismiss" onclick="dismissAlert(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="alert-item info">
+            <div class="alert-indicator"></div>
+            <div class="alert-icon">
+                <i class="fas fa-truck-loading"></i>
+            </div>
+            <div class="alert-content">
+                <h3 class="alert-title">Order Dispatched - Order #ORD-00041</h3>
+                <p class="alert-message">Order dispatched to construction site. Driver: Vijay Singh</p>
+                <div class="alert-meta">
+                    <span class="alert-time"><i class="far fa-clock"></i> 4 hours ago</span>
+                    <span class="alert-category"><i class="fas fa-tag"></i> Dispatch</span>
+                </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn-view" onclick="viewDetails(this)">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn-dismiss" onclick="dismissAlert(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Success Alerts -->
+        <div class="alert-item success">
+            <div class="alert-indicator"></div>
+            <div class="alert-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="alert-content">
+                <h3 class="alert-title">Order Delivered Successfully - Order #ORD-00039</h3>
+                <p class="alert-message">Order delivered to Kumar Builders. Customer signature received.</p>
+                <div class="alert-meta">
+                    <span class="alert-time"><i class="far fa-clock"></i> 5 hours ago</span>
+                    <span class="alert-category"><i class="fas fa-tag"></i> Delivery</span>
+                </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn-view" onclick="viewDetails(this)">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn-dismiss" onclick="dismissAlert(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="alert-item success">
+            <div class="alert-indicator"></div>
+            <div class="alert-icon">
+                <i class="fas fa-sync-alt"></i>
+            </div>
+            <div class="alert-content">
+                <h3 class="alert-title">Stock Updated Successfully</h3>
+                <p class="alert-message">Added 200 bags of Cement Grade 53 to inventory</p>
+                <div class="alert-meta">
+                    <span class="alert-time"><i class="far fa-clock"></i> 1 day ago</span>
+                    <span class="alert-category"><i class="fas fa-tag"></i> Inventory</span>
+                </div>
+            </div>
+            <div class="alert-actions">
+                <button class="btn-view" onclick="viewDetails(this)">
+                    <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn-dismiss" onclick="dismissAlert(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State (hidden by default) -->
+    <div class="empty-state" style="display: none;">
+        <i class="fas fa-bell-slash"></i>
+        <h2>No Alerts</h2>
+        <p>You're all caught up! No pending alerts or notifications.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function viewDetails(button) {
+        const alertItem = button.closest('.alert-item');
+        const title = alertItem.querySelector('.alert-title').textContent;
+        alert('Viewing details for: ' + title + '\n\nThis would open a detailed view in a production system.');
+        
+        // Mark as read
+        alertItem.classList.remove('unread');
+        alertItem.querySelector('.alert-indicator .pulse-dot')?.remove();
+    }
+
+    function dismissAlert(button) {
+        const alertItem = button.closest('.alert-item');
+        alertItem.style.opacity = '0';
+        alertItem.style.transform = 'translateX(100%)';
+        
+        setTimeout(() => {
+            alertItem.remove();
+            checkIfEmpty();
+        }, 300);
+    }
+
+    function markAllRead() {
+        const unreadAlerts = document.querySelectorAll('.alert-item.unread');
+        unreadAlerts.forEach(alert => {
+            alert.classList.remove('unread');
+            const pulseDot = alert.querySelector('.alert-indicator .pulse-dot');
+            if (pulseDot) {
+                pulseDot.remove();
+            }
+        });
+        
+        if (unreadAlerts.length > 0) {
+            showNotification('All alerts marked as read!', 'success');
+        }
+    }
+
+    function clearAll() {
+        if (confirm('Are you sure you want to clear all alerts?')) {
+            const alerts = document.querySelectorAll('.alert-item');
+            alerts.forEach((alert, index) => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateX(100%)';
+                    
+                    setTimeout(() => {
+                        alert.remove();
+                        if (index === alerts.length - 1) {
+                            checkIfEmpty();
+                        }
+                    }, 300);
+                }, index * 50);
+            });
+        }
+    }
+
+    function checkIfEmpty() {
+        const alertsContainer = document.querySelector('.alerts-container');
+        const emptyState = document.querySelector('.empty-state');
+        const alertStats = document.querySelector('.alert-stats');
+        
+        if (alertsContainer.children.length === 0) {
+            alertsContainer.style.display = 'none';
+            emptyState.style.display = 'flex';
+            alertStats.style.display = 'none';
+        }
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

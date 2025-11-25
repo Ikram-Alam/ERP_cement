@@ -1,0 +1,249 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Stock Level - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/stock-pages.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-boxes"></i> Warehouse Stock Management</h1>
+    <a href="{% url 'dashboard:product_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add New Product
+    </a>
+</div>
+
+<!-- Warehouse Statistics -->
+<div class="warehouse-stats">
+    <div class="stat-card stat-primary">
+        <div class="stat-icon">
+            <i class="fas fa-cubes"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ warehouse_stats.total_bags|default:0 }}</h3>
+            <p>Total Bags in Stock</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-success">
+        <div class="stat-icon">
+            <i class="fas fa-box-open"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ warehouse_stats.total_products|default:0 }}</h3>
+            <p>Total Products</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-warning">
+        <div class="stat-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ warehouse_stats.low_stock_count|default:0 }}</h3>
+            <p>Low Stock Alerts</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-danger">
+        <div class="stat-icon">
+            <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ warehouse_stats.out_of_stock_count|default:0 }}</h3>
+            <p>Out of Stock</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-info">
+        <div class="stat-icon">
+            <i class="fas fa-rupee-sign"></i>
+        </div>
+        <div class="stat-details">
+            <h3>₹{{ warehouse_stats.total_value|floatformat:0|default:0 }}</h3>
+            <p>Total Stock Value</p>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <form method="get" class="filter-form">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input 
+                type="text" 
+                name="search" 
+                placeholder="Search by product name or grade..." 
+                value="{{ search_query }}"
+            >
+        </div>
+        
+        <select name="grade" class="filter-select">
+            <option value="">All Grades</option>
+            {% for value, label in grade_choices %}
+            <option value="{{ value }}" {% if grade_filter == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        
+        <select name="stock_status" class="filter-select">
+            <option value="">All Stock Status</option>
+            <option value="available" {% if stock_filter == 'available' %}selected{% endif %}>Available</option>
+            <option value="low" {% if stock_filter == 'low' %}selected{% endif %}>Low Stock</option>
+            <option value="out" {% if stock_filter == 'out' %}selected{% endif %}>Out of Stock</option>
+        </select>
+        
+        <button type="submit" class="btn btn-secondary">
+            <i class="fas fa-filter"></i> Filter
+        </button>
+        
+        {% if search_query or grade_filter or stock_filter %}
+        <a href="{% url 'dashboard:stock_list' %}" class="btn btn-outline">
+            <i class="fas fa-times"></i> Clear
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Stock Products Table -->
+<div class="stock-container">
+    {% if products %}
+    <div class="stock-grid">
+        {% for product in products %}
+        <div class="product-card {% if product.stock_quantity == 0 %}out-of-stock{% elif product.is_low_stock %}low-stock{% endif %}">
+            <div class="product-header">
+                <div class="product-grade grade-{{ product.grade|lower }}">
+                    {{ product.get_grade_display }}
+                </div>
+                {% if product.stock_quantity == 0 %}
+                <span class="stock-badge badge-danger">
+                    <i class="fas fa-times-circle"></i> Out of Stock
+                </span>
+                {% elif product.is_low_stock %}
+                <span class="stock-badge badge-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Low Stock
+                </span>
+                {% else %}
+                <span class="stock-badge badge-success">
+                    <i class="fas fa-check-circle"></i> Available
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="product-body">
+                <h3 class="product-name">{{ product.name }}</h3>
+                
+                <div class="product-info">
+                    <div class="info-row">
+                        <span class="info-label">
+                            <i class="fas fa-weight"></i> Weight per Bag
+                        </span>
+                        <span class="info-value">{{ product.weight_per_bag }} KG</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">
+                            <i class="fas fa-rupee-sign"></i> Price per Bag
+                        </span>
+                        <span class="info-value">₹{{ product.price_per_bag }}</span>
+                    </div>
+                    
+                    <div class="info-row highlight">
+                        <span class="info-label">
+                            <i class="fas fa-boxes"></i> Current Stock
+                        </span>
+                        <span class="info-value stock-quantity">{{ product.stock_quantity }} bags</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">
+                            <i class="fas fa-bell"></i> Reorder Level
+                        </span>
+                        <span class="info-value">{{ product.reorder_level }} bags</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">
+                            <i class="fas fa-money-bill-wave"></i> Stock Value
+                        </span>
+                        <span class="info-value">₹{{ product.stock_value|floatformat:0 }}</span>
+                    </div>
+                </div>
+                
+                <!-- Stock Level Progress Bar -->
+                <div class="stock-level-bar">
+                    {% widthratio product.stock_quantity product.reorder_level 100 as stock_percentage %}
+                    {% if stock_percentage > 100 %}
+                        {% widthratio 100 1 1 as capped_percentage %}
+                    {% else %}
+                        {% widthratio stock_percentage 1 1 as capped_percentage %}
+                    {% endif %}
+                    <div class="stock-progress">
+                        <div class="stock-fill {% if product.stock_quantity == 0 %}fill-danger{% elif product.is_low_stock %}fill-warning{% else %}fill-success{% endif %}" 
+                             style="width: {% if stock_percentage > 100 %}100{% else %}{{ stock_percentage }}{% endif %}%">
+                        </div>
+                    </div>
+                    <small>{{ stock_percentage }}% of reorder level</small>
+                </div>
+            </div>
+            
+            <div class="product-actions">
+                <a href="{% url 'dashboard:stock_update' product.pk %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-edit"></i> Adjust Stock
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if grade_filter %}&grade={{ grade_filter }}{% endif %}{% if stock_filter %}&stock_status={{ stock_filter }}{% endif %}" 
+           class="page-link">
+            <i class="fas fa-angle-double-left"></i>
+        </a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if grade_filter %}&grade={{ grade_filter }}{% endif %}{% if stock_filter %}&stock_status={{ stock_filter }}{% endif %}" 
+           class="page-link">
+            <i class="fas fa-angle-left"></i>
+        </a>
+        {% endif %}
+        
+        <span class="page-info">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if grade_filter %}&grade={{ grade_filter }}{% endif %}{% if stock_filter %}&stock_status={{ stock_filter }}{% endif %}" 
+           class="page-link">
+            <i class="fas fa-angle-right"></i>
+        </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if grade_filter %}&grade={{ grade_filter }}{% endif %}{% if stock_filter %}&stock_status={{ stock_filter }}{% endif %}" 
+           class="page-link">
+            <i class="fas fa-angle-double-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-boxes"></i>
+        <h3>No Products Found</h3>
+        <p>
+            {% if search_query or grade_filter or stock_filter %}
+            No products match your search criteria. Try adjusting your filters.
+            {% else %}
+            Start by adding your first cement product to the warehouse.
+            {% endif %}
+        </p>
+        <a href="{% url 'dashboard:product_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add First Product
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

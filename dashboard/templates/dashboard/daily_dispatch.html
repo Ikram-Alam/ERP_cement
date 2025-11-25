@@ -1,0 +1,388 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Daily Dispatch - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/daily-dispatch.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-shipping-fast"></i> Daily Dispatch & Supply Chain</h1>
+    <div class="header-actions">
+        <a href="{% url 'dashboard:order_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Order
+        </a>
+    </div>
+</div>
+
+<!-- Date Navigation -->
+<div class="date-navigation">
+    <a href="?date={{ yesterday|date:'Y-m-d' }}" class="date-nav-btn">
+        <i class="fas fa-chevron-left"></i> Previous Day
+    </a>
+    
+    <div class="date-selector">
+        <form method="get" id="dateForm">
+            <input 
+                type="date" 
+                name="date" 
+                class="date-input"
+                value="{{ selected_date|date:'Y-m-d' }}"
+                onchange="this.form.submit()"
+            >
+            {% if search_query %}
+            <input type="hidden" name="search" value="{{ search_query }}">
+            {% endif %}
+            {% if status_filter %}
+            <input type="hidden" name="status" value="{{ status_filter }}">
+            {% endif %}
+            {% if driver_filter %}
+            <input type="hidden" name="driver" value="{{ driver_filter }}">
+            {% endif %}
+        </form>
+        <div class="current-date">
+            <i class="fas fa-calendar-day"></i>
+            <strong>{{ selected_date|date:"l, F d, Y" }}</strong>
+            {% if selected_date == today %}
+            <span class="today-badge">Today</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <a href="?date={{ tomorrow|date:'Y-m-d' }}" class="date-nav-btn">
+        Next Day <i class="fas fa-chevron-right"></i>
+    </a>
+    
+    {% if selected_date != today %}
+    <a href="?" class="btn btn-secondary btn-sm">
+        <i class="fas fa-calendar-check"></i> Today
+    </a>
+    {% endif %}
+</div>
+
+<!-- Dispatch Statistics -->
+<div class="dispatch-stats">
+    <div class="stat-card stat-total">
+        <div class="stat-icon">
+            <i class="fas fa-truck-loading"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ dispatch_stats.total_dispatches }}</h3>
+            <p>Total Dispatches</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-dispatched">
+        <div class="stat-icon">
+            <i class="fas fa-shipping-fast"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ dispatch_stats.dispatched_count }}</h3>
+            <p>In Transit</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-delivered">
+        <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ dispatch_stats.delivered_count }}</h3>
+            <p>Delivered</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-bags">
+        <div class="stat-icon">
+            <i class="fas fa-boxes"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ dispatch_stats.total_bags }}</h3>
+            <p>Total Bags</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-drivers">
+        <div class="stat-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ dispatch_stats.active_drivers }}</h3>
+            <p>Active Drivers</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-value">
+        <div class="stat-icon">
+            <i class="fas fa-rupee-sign"></i>
+        </div>
+        <div class="stat-details">
+            <h3>₹{{ dispatch_stats.total_value|floatformat:0 }}</h3>
+            <p>Total Value</p>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <form method="get" class="filter-form">
+        <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+        
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input 
+                type="text" 
+                name="search" 
+                placeholder="Search by order #, vendor, driver, vehicle..." 
+                value="{{ search_query }}"
+            >
+        </div>
+        
+        <select name="status" class="filter-select">
+            <option value="">All Status</option>
+            <option value="dispatched" {% if status_filter == 'dispatched' %}selected{% endif %}>In Transit</option>
+            <option value="delivered" {% if status_filter == 'delivered' %}selected{% endif %}>Delivered</option>
+        </select>
+        
+        <select name="driver" class="filter-select">
+            <option value="">All Drivers</option>
+            {% for driver in all_drivers %}
+            <option value="{{ driver.id }}" {% if driver_filter == driver.id|stringformat:"s" %}selected{% endif %}>
+                {{ driver.name }} - {{ driver.vehicle_number }}
+            </option>
+            {% endfor %}
+        </select>
+        
+        <button type="submit" class="btn btn-secondary">
+            <i class="fas fa-filter"></i> Filter
+        </button>
+        
+        {% if search_query or status_filter or driver_filter %}
+        <a href="?date={{ selected_date|date:'Y-m-d' }}" class="btn btn-outline">
+            <i class="fas fa-times"></i> Clear
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Dispatch List -->
+<div class="dispatch-container">
+    {% if orders %}
+    <div class="dispatch-timeline">
+        {% for order in orders %}
+        <div class="dispatch-card {% if order.status == 'delivered' %}delivered{% else %}in-transit{% endif %}">
+            <div class="dispatch-status-indicator">
+                {% if order.status == 'delivered' %}
+                <div class="status-dot delivered-dot"></div>
+                {% else %}
+                <div class="status-dot transit-dot"></div>
+                {% endif %}
+            </div>
+            
+            <div class="dispatch-content">
+                <div class="dispatch-header">
+                    <div class="order-info">
+                        <h3 class="order-number">
+                            <i class="fas fa-file-invoice"></i>
+                            {{ order.order_number }}
+                        </h3>
+                        <span class="order-time">
+                            <i class="fas fa-clock"></i>
+                            {{ order.order_date|date:"h:i A" }}
+                        </span>
+                        <span class="status-badge status-{{ order.status }}">
+                            {% if order.status == 'delivered' %}
+                                <i class="fas fa-check-circle"></i> Delivered
+                            {% else %}
+                                <i class="fas fa-shipping-fast"></i> In Transit
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="dispatch-details">
+                    <div class="detail-section">
+                        <div class="detail-row">
+                            <div class="detail-item">
+                                <i class="fas fa-store"></i>
+                                <div>
+                                    <label>Vendor</label>
+                                    <strong>{{ order.vendor.name }}</strong>
+                                    {% if order.vendor.company_name %}
+                                    <small>{{ order.vendor.company_name }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>
+                                    <label>Delivery Address</label>
+                                    <strong>{{ order.delivery_address|truncatewords:8 }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            {% if order.driver %}
+                            <div class="detail-item driver-detail">
+                                <i class="fas fa-user-tie"></i>
+                                <div>
+                                    <label>Driver</label>
+                                    <strong>{{ order.driver.name }}</strong>
+                                    <small>
+                                        <i class="fas fa-truck"></i> {{ order.driver.vehicle_number }}
+                                        ({{ order.driver.vehicle_type }})
+                                    </small>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="detail-item">
+                                <i class="fas fa-user-times"></i>
+                                <div>
+                                    <label>Driver</label>
+                                    <span class="text-warning">Not Assigned</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="detail-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <div>
+                                    <label>Expected Delivery</label>
+                                    <strong>
+                                        {% if order.delivery_date %}
+                                        {{ order.delivery_date|date:"d M Y" }}
+                                        {% else %}
+                                        <span class="text-muted">Not set</span>
+                                        {% endif %}
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="items-section">
+                        <h4><i class="fas fa-boxes"></i> Order Items</h4>
+                        <div class="items-list">
+                            {% for item in order.items.all %}
+                            <div class="item-row">
+                                <span class="item-product">{{ item.product.name }}</span>
+                                <span class="item-quantity">{{ item.quantity }} bags</span>
+                                <span class="item-price">₹{{ item.total_price|floatformat:0 }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="order-summary">
+                            <div class="summary-row">
+                                <span>Subtotal:</span>
+                                <strong>₹{{ order.subtotal|floatformat:0 }}</strong>
+                            </div>
+                            {% if order.discount_amount > 0 %}
+                            <div class="summary-row discount">
+                                <span>Discount ({{ order.discount_percent }}%):</span>
+                                <strong>-₹{{ order.discount_amount|floatformat:0 }}</strong>
+                            </div>
+                            {% endif %}
+                            <div class="summary-row">
+                                <span>Tax ({{ order.tax_percent }}%):</span>
+                                <strong>₹{{ order.tax_amount|floatformat:0 }}</strong>
+                            </div>
+                            <div class="summary-row total">
+                                <span>Total Amount:</span>
+                                <strong>₹{{ order.total_amount|floatformat:0 }}</strong>
+                            </div>
+                            <div class="summary-row payment">
+                                <span>Payment Status:</span>
+                                <span class="payment-badge payment-{{ order.payment_status }}">
+                                    {{ order.get_payment_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if order.notes %}
+                    <div class="notes-section">
+                        <i class="fas fa-sticky-note"></i>
+                        <div>
+                            <label>Notes</label>
+                            <p>{{ order.notes }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if order.status == 'dispatched' %}
+                <div class="dispatch-actions">
+                    <form method="post" action="{% url 'dashboard:order_status_update' order.pk %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="delivered">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Mark as Delivered
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1&date={{ selected_date|date:'Y-m-d' }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if driver_filter %}&driver={{ driver_filter }}{% endif %}" 
+           class="page-link">
+            <i class="fas fa-angle-double-left"></i>
+        </a>
+        <a href="?page={{ page_obj.previous_page_number }}&date={{ selected_date|date:'Y-m-d' }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if driver_filter %}&driver={{ driver_filter }}{% endif %}" 
+           class="page-link">
+            <i class="fas fa-angle-left"></i>
+        </a>
+        {% endif %}
+        
+        <span class="page-info">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&date={{ selected_date|date:'Y-m-d' }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if driver_filter %}&driver={{ driver_filter }}{% endif %}" 
+           class="page-link">
+            <i class="fas fa-angle-right"></i>
+        </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}&date={{ selected_date|date:'Y-m-d' }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if driver_filter %}&driver={{ driver_filter }}{% endif %}" 
+           class="page-link">
+            <i class="fas fa-angle-double-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-truck"></i>
+        <h3>No Dispatches Found</h3>
+        <p>
+            {% if search_query or status_filter or driver_filter %}
+            No dispatches match your search criteria for {{ selected_date|date:"F d, Y" }}.
+            {% else %}
+            No dispatches scheduled for {{ selected_date|date:"F d, Y" }}.
+            {% endif %}
+        </p>
+        {% if selected_date != today %}
+        <a href="?" class="btn btn-primary">
+            <i class="fas fa-calendar-check"></i> View Today's Dispatches
+        </a>
+        {% else %}
+        <a href="{% url 'dashboard:order_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Order
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

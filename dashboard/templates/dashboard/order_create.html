@@ -1,0 +1,246 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block page_title %}Create New Order{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/order-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="order-create-container">
+    <!-- Page Header -->
+    <div class="page-header-card">
+        <div class="header-content">
+            <h1 class="page-heading">
+                <i class="fas fa-plus-circle"></i>
+                Create New Order
+            </h1>
+            <p class="page-description">Fill in the details below to create a new cement order</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'dashboard:home' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <form method="post" id="orderForm" class="order-form">
+        {% csrf_token %}
+        
+        <!-- Customer Information Section -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-user-tie"></i>
+                Customer Information
+            </h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="vendor" class="form-label required">
+                        <i class="fas fa-store"></i>
+                        Vendor/Customer
+                    </label>
+                    <select name="vendor" id="vendor" class="form-control" required>
+                        <option value="">Select Vendor</option>
+                        {% for vendor in vendors %}
+                        <option value="{{ vendor.id }}" 
+                                data-address="{{ vendor.address }}, {{ vendor.city }}, {{ vendor.state }} - {{ vendor.pincode }}"
+                                data-phone="{{ vendor.phone }}"
+                                data-credit="{{ vendor.available_credit }}">
+                            {{ vendor.name }} - {{ vendor.company_name|default:"Individual" }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-help">Select the customer for this order</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="delivery_address" class="form-label required">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Delivery Address
+                    </label>
+                    <textarea name="delivery_address" id="delivery_address" class="form-control" rows="3" required placeholder="Enter complete delivery address"></textarea>
+                </div>
+            </div>
+            
+            <div class="vendor-info-card" id="vendorInfoCard" style="display: none;">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value" id="vendorPhone">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Available Credit:</span>
+                        <span class="info-value" id="vendorCredit">₹0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delivery Details Section -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-truck"></i>
+                Delivery Details
+            </h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="delivery_date" class="form-label">
+                        <i class="fas fa-calendar"></i>
+                        Delivery Date
+                    </label>
+                    <input type="date" name="delivery_date" id="delivery_date" class="form-control">
+                    <small class="form-help">Expected delivery date</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="driver" class="form-label">
+                        <i class="fas fa-user"></i>
+                        Assign Driver
+                    </label>
+                    <select name="driver" id="driver" class="form-control">
+                        <option value="">Select Driver (Optional)</option>
+                        {% for driver in drivers %}
+                        <option value="{{ driver.id }}" 
+                                data-vehicle="{{ driver.vehicle_number }}"
+                                data-capacity="{{ driver.vehicle_capacity }}">
+                            {{ driver.name }} - {{ driver.vehicle_number }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items Section -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-boxes"></i>
+                Order Items
+            </h2>
+            
+            <div class="items-container" id="itemsContainer">
+                <div class="items-header">
+                    <div class="header-col">Product</div>
+                    <div class="header-col">Quantity (Bags)</div>
+                    <div class="header-col">Price/Bag</div>
+                    <div class="header-col">Total</div>
+                    <div class="header-col">Action</div>
+                </div>
+                
+                <div class="items-body" id="itemsBody">
+                    <!-- Items will be added here dynamically -->
+                </div>
+                
+                <button type="button" class="btn btn-add-item" id="addItemBtn">
+                    <i class="fas fa-plus"></i>
+                    Add Item
+                </button>
+            </div>
+        </div>
+
+        <!-- Payment & Discount Section -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-calculator"></i>
+                Payment Details
+            </h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="discount_percent" class="form-label">
+                        <i class="fas fa-percentage"></i>
+                        Discount (%)
+                    </label>
+                    <input type="number" name="discount_percent" id="discount_percent" class="form-control" min="0" max="100" step="0.01" value="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="tax_percent" class="form-label">
+                        <i class="fas fa-file-invoice"></i>
+                        GST/Tax (%)
+                    </label>
+                    <input type="number" name="tax_percent" id="tax_percent" class="form-control" min="0" max="100" step="0.01" value="18">
+                </div>
+                
+                <div class="form-group">
+                    <label for="payment_method" class="form-label">
+                        <i class="fas fa-money-bill"></i>
+                        Payment Method
+                    </label>
+                    <select name="payment_method" id="payment_method" class="form-control">
+                        <option value="cash">Cash</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="online">Online Transfer</option>
+                        <option value="credit">Credit</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <div class="summary-row">
+                    <span class="summary-label">Subtotal:</span>
+                    <span class="summary-value" id="subtotal">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Discount:</span>
+                    <span class="summary-value" id="discountAmount">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Taxable Amount:</span>
+                    <span class="summary-value" id="taxableAmount">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">GST/Tax:</span>
+                    <span class="summary-value" id="taxAmount">₹0.00</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span class="summary-label">Total Amount:</span>
+                    <span class="summary-value" id="totalAmount">₹0.00</span>
+                </div>
+                <div class="summary-row bags-row">
+                    <span class="summary-label">Total Bags:</span>
+                    <span class="summary-value" id="totalBags">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="form-section">
+            <h2 class="section-title">
+                <i class="fas fa-sticky-note"></i>
+                Additional Notes
+            </h2>
+            
+            <div class="form-group">
+                <textarea name="notes" id="notes" class="form-control" rows="3" placeholder="Add any special instructions or notes for this order"></textarea>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-check-circle"></i>
+                Create Order
+            </button>
+            <button type="button" class="btn btn-secondary btn-lg" onclick="window.history.back()">
+                <i class="fas fa-times"></i>
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Hidden product data for JavaScript -->
+<script>
+    window.PRODUCTS_DATA = {{ products_json|safe }};
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/order-form.js' %}"></script>
+{% endblock %}

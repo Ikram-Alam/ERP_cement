@@ -1,0 +1,368 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/support.css' %}">
+{% endblock %}
+
+{% block title %}Support & Help - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="support-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><i class="fas fa-life-ring"></i> Support & Help Center</h1>
+            <p class="subtitle">Get help and find answers to your questions</p>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <div class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h3>FAQs</h3>
+            <p>Find quick answers to common questions</p>
+            <button onclick="scrollToSection('faq')" class="btn-action">View FAQs</button>
+        </div>
+
+        <div class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            <h3>Documentation</h3>
+            <p>Comprehensive user guides and tutorials</p>
+            <button onclick="alert('Documentation opens in new window')" class="btn-action">Read Docs</button>
+        </div>
+
+        <div class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-headset"></i>
+            </div>
+            <h3>Contact Support</h3>
+            <p>Get help from our support team</p>
+            <button onclick="scrollToSection('contact')" class="btn-action">Contact Us</button>
+        </div>
+
+        <div class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-video"></i>
+            </div>
+            <h3>Video Tutorials</h3>
+            <p>Watch step-by-step video guides</p>
+            <button onclick="alert('Video tutorials opens in new window')" class="btn-action">Watch Videos</button>
+        </div>
+    </div>
+
+    <!-- Popular Topics -->
+    <div class="topics-section">
+        <h2><i class="fas fa-star"></i> Popular Topics</h2>
+        <div class="topics-grid">
+            <a href="#" class="topic-card">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>Creating Orders</h3>
+                <p>Learn how to create and manage orders</p>
+            </a>
+
+            <a href="#" class="topic-card">
+                <i class="fas fa-users"></i>
+                <h3>Managing Vendors</h3>
+                <p>Add, edit, and organize vendor information</p>
+            </a>
+
+            <a href="#" class="topic-card">
+                <i class="fas fa-boxes"></i>
+                <h3>Stock Management</h3>
+                <p>Track inventory and update stock levels</p>
+            </a>
+
+            <a href="#" class="topic-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Financial Reports</h3>
+                <p>Generate and understand financial analytics</p>
+            </a>
+
+            <a href="#" class="topic-card">
+                <i class="fas fa-truck"></i>
+                <h3>Dispatch & Delivery</h3>
+                <p>Manage deliveries and track shipments</p>
+            </a>
+
+            <a href="#" class="topic-card">
+                <i class="fas fa-file-invoice"></i>
+                <h3>Payment Processing</h3>
+                <p>Handle payments and track transactions</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- FAQs Section -->
+    <div id="faq" class="faq-section">
+        <h2><i class="fas fa-question-circle"></i> Frequently Asked Questions</h2>
+        
+        <div class="faq-container">
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I create a new order?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>To create a new order:</p>
+                    <ol>
+                        <li>Click on "Create Order" in the sidebar menu</li>
+                        <li>Select the vendor from the dropdown list</li>
+                        <li>Choose the cement product, grade, and quantity</li>
+                        <li>Fill in delivery details (address, date, driver)</li>
+                        <li>Review the order summary and click "Create Order"</li>
+                    </ol>
+                    <p>You can add multiple items to a single order by clicking "Add Another Item".</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I update stock levels?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>To update stock:</p>
+                    <ol>
+                        <li>Go to "Stock Level" from the sidebar</li>
+                        <li>Click the "Update Stock" button next to the product</li>
+                        <li>Select adjustment type: Add, Remove, or Set</li>
+                        <li>Enter the quantity</li>
+                        <li>Click "Save" to apply changes</li>
+                    </ol>
+                    <p>The system automatically updates stock when orders are delivered.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I track pending orders?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>To track pending orders:</p>
+                    <ol>
+                        <li>Navigate to "Pending Orders" from the sidebar</li>
+                        <li>Use filters to search by order number, vendor, or status</li>
+                        <li>View order details by clicking on any order</li>
+                        <li>Update order status using the status dropdown</li>
+                    </ol>
+                    <p>You can filter by payment status and date range for better tracking.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I add a new vendor?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>To add a vendor:</p>
+                    <ol>
+                        <li>Go to "Vendors" section</li>
+                        <li>Click the "Add New Vendor" button</li>
+                        <li>Fill in vendor details (name, company, contact info)</li>
+                        <li>Enter GST number and address</li>
+                        <li>Click "Save" to create the vendor</li>
+                    </ol>
+                    <p>All vendor information can be edited later from the vendor list page.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I generate financial reports?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>To generate reports:</p>
+                    <ol>
+                        <li>Visit the "Finance" page from the sidebar</li>
+                        <li>Select the date range using the date filters</li>
+                        <li>Click "Apply" to generate the report</li>
+                        <li>View revenue, expenses, and profit charts</li>
+                    </ol>
+                    <p>You can export reports or print them for record keeping.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I manage drivers and vehicles?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    <p>To manage drivers:</p>
+                    <ol>
+                        <li>Navigate to "Drivers" from the sidebar</li>
+                        <li>Click "Add New Driver" to add a driver</li>
+                        <li>Enter driver details, license number, and vehicle information</li>
+                        <li>Assign drivers to orders during order creation</li>
+                    </ol>
+                    <p>You can edit driver information and track their active deliveries.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div id="contact" class="contact-section">
+        <h2><i class="fas fa-headset"></i> Contact Support</h2>
+        
+        <div class="contact-grid">
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fas fa-phone-alt"></i>
+                </div>
+                <h3>Phone Support</h3>
+                <p class="contact-detail">+91 22 1234 5678</p>
+                <p class="contact-hours">Mon - Fri: 9 AM - 6 PM IST</p>
+                <button class="btn-contact">Call Now</button>
+            </div>
+
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h3>Email Support</h3>
+                <p class="contact-detail">support@cemerp.com</p>
+                <p class="contact-hours">24/7 - Response within 24 hours</p>
+                <button class="btn-contact">Send Email</button>
+            </div>
+
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3>Live Chat</h3>
+                <p class="contact-detail">Real-time assistance</p>
+                <p class="contact-hours">Mon - Sat: 9 AM - 8 PM IST</p>
+                <button class="btn-contact">Start Chat</button>
+            </div>
+
+            <div class="contact-card">
+                <div class="contact-icon">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <h3>WhatsApp</h3>
+                <p class="contact-detail">+91 98765 43210</p>
+                <p class="contact-hours">Mon - Sat: 9 AM - 8 PM IST</p>
+                <button class="btn-contact">Message Us</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Form -->
+    <div class="ticket-section">
+        <h2><i class="fas fa-ticket-alt"></i> Submit a Support Ticket</h2>
+        
+        <div class="ticket-form">
+            <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" placeholder="Enter your name" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" placeholder="your.email@example.com" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+                <select class="form-input">
+                    <option>Select a category</option>
+                    <option>Technical Issue</option>
+                    <option>Feature Request</option>
+                    <option>Billing Question</option>
+                    <option>Account Help</option>
+                    <option>Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" placeholder="Brief description of your issue" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea rows="5" placeholder="Please describe your issue in detail..." class="form-input"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Attachment (Optional)</label>
+                <input type="file" class="form-input">
+            </div>
+
+            <button onclick="submitTicket()" class="btn-submit">
+                <i class="fas fa-paper-plane"></i> Submit Ticket
+            </button>
+        </div>
+    </div>
+
+    <!-- Resources -->
+    <div class="resources-section">
+        <h2><i class="fas fa-book-open"></i> Helpful Resources</h2>
+        
+        <div class="resources-grid">
+            <a href="#" class="resource-card">
+                <i class="fas fa-file-pdf"></i>
+                <h3>User Manual</h3>
+                <p>Complete PDF guide</p>
+            </a>
+
+            <a href="#" class="resource-card">
+                <i class="fas fa-keyboard"></i>
+                <h3>Keyboard Shortcuts</h3>
+                <p>Quick reference guide</p>
+            </a>
+
+            <a href="#" class="resource-card">
+                <i class="fas fa-code"></i>
+                <h3>API Documentation</h3>
+                <p>Developer resources</p>
+            </a>
+
+            <a href="#" class="resource-card">
+                <i class="fas fa-download"></i>
+                <h3>Downloads</h3>
+                <p>Forms and templates</p>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleFaq(button) {
+        const faqItem = button.closest('.faq-item');
+        const answer = faqItem.querySelector('.faq-answer');
+        const icon = button.querySelector('i');
+        
+        faqItem.classList.toggle('active');
+        
+        if (faqItem.classList.contains('active')) {
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+            icon.style.transform = 'rotate(180deg)';
+        } else {
+            answer.style.maxHeight = '0';
+            icon.style.transform = 'rotate(0deg)';
+        }
+    }
+
+    function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function submitTicket() {
+        alert('Support ticket submitted successfully!\n\nOur team will respond within 24 hours.\nTicket ID: #' + Math.random().toString(36).substr(2, 9).toUpperCase());
+    }
+</script>
+{% endblock %}

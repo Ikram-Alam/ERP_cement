@@ -1,0 +1,225 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Drivers - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/driver-pages.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-user-tie"></i> Driver Management</h1>
+    <a href="{% url 'dashboard:driver_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add New Driver
+    </a>
+</div>
+
+<!-- Stats Row -->
+<div class="stats-row">
+    <div class="mini-stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ total_drivers }}</h3>
+            <p>Total Drivers</p>
+        </div>
+    </div>
+    
+    <div class="mini-stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+            <i class="fas fa-user-check"></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ active_drivers }}</h3>
+            <p>Active Drivers</p>
+        </div>
+    </div>
+    
+    <div class="mini-stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <i class="fas fa-user-times"></i>
+        </div>
+        <div class="stat-info">
+            <h3>{{ total_drivers|add:"-"|add:active_drivers }}</h3>
+            <p>Inactive</p>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <form method="get" class="filter-form">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input 
+                type="text" 
+                name="search" 
+                placeholder="Search by name, phone, license, vehicle..." 
+                value="{{ search_query }}"
+            >
+        </div>
+        
+        <select name="status" class="filter-select">
+            <option value="">All Status</option>
+            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+        
+        <select name="vehicle_type" class="filter-select">
+            <option value="">All Vehicles</option>
+            {% for vtype in vehicle_types %}
+            <option value="{{ vtype }}" {% if vehicle_filter == vtype %}selected{% endif %}>{{ vtype }}</option>
+            {% endfor %}
+        </select>
+        
+        <button type="submit" class="btn btn-secondary">
+            <i class="fas fa-filter"></i> Filter
+        </button>
+        
+        {% if search_query or status_filter or vehicle_filter %}
+        <a href="{% url 'dashboard:driver_list' %}" class="btn btn-outline">
+            <i class="fas fa-times"></i> Clear
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Drivers Table -->
+<div class="table-card">
+    {% if drivers %}
+    <table class="data-table-modern">
+        <thead>
+            <tr>
+                <th>Driver</th>
+                <th>Contact</th>
+                <th>License</th>
+                <th>Vehicle Info</th>
+                <th>Capacity</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for driver in drivers %}
+            <tr>
+                <td>
+                    <div class="driver-info">
+                        <div class="driver-avatar">
+                            {{ driver.name|slice:":1"|upper }}
+                        </div>
+                        <div>
+                            <div class="driver-name">{{ driver.name }}</div>
+                            <div class="driver-meta">ID: #{{ driver.id }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="contact-info">
+                        <i class="fas fa-phone"></i> {{ driver.phone }}
+                    </div>
+                </td>
+                <td>
+                    <div class="license-info">
+                        <i class="fas fa-id-card"></i> {{ driver.license_number }}
+                    </div>
+                </td>
+                <td>
+                    <div class="vehicle-info">
+                        <span class="vehicle-badge vehicle-{{ driver.vehicle_type|lower|cut:' ' }}">
+                            <i class="fas fa-truck"></i> {{ driver.vehicle_type }}
+                        </span>
+                        <div class="vehicle-number">{{ driver.vehicle_number }}</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="capacity-info">
+                        <i class="fas fa-box"></i> {{ driver.vehicle_capacity }} bags
+                    </div>
+                </td>
+                <td>
+                    {% if driver.is_active %}
+                    <span class="status-badge status-active">
+                        <i class="fas fa-check-circle"></i> Active
+                    </span>
+                    {% else %}
+                    <span class="status-badge status-inactive">
+                        <i class="fas fa-times-circle"></i> Inactive
+                    </span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <a href="{% url 'dashboard:driver_update' driver.pk %}" 
+                           class="btn-action btn-edit" 
+                           title="Edit Driver">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form method="post" 
+                              action="{% url 'dashboard:driver_delete' driver.pk %}" 
+                              style="display: inline;"
+                              onsubmit="return confirm('Are you sure you want to deactivate {{ driver.name }}?');">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="btn-action btn-delete" 
+                                    title="Deactivate Driver">
+                                <i class="fas fa-user-slash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if vehicle_filter %}&vehicle_type={{ vehicle_filter }}{% endif %}" 
+           class="page-link">
+            <i class="fas fa-angle-double-left"></i>
+        </a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if vehicle_filter %}&vehicle_type={{ vehicle_filter }}{% endif %}" 
+           class="page-link">
+            <i class="fas fa-angle-left"></i>
+        </a>
+        {% endif %}
+        
+        <span class="page-info">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if vehicle_filter %}&vehicle_type={{ vehicle_filter }}{% endif %}" 
+           class="page-link">
+            <i class="fas fa-angle-right"></i>
+        </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if vehicle_filter %}&vehicle_type={{ vehicle_filter }}{% endif %}" 
+           class="page-link">
+            <i class="fas fa-angle-double-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-user-tie"></i>
+        <h3>No Drivers Found</h3>
+        <p>
+            {% if search_query or status_filter or vehicle_filter %}
+            No drivers match your search criteria. Try adjusting your filters.
+            {% else %}
+            Start by adding your first driver to the system.
+            {% endif %}
+        </p>
+        <a href="{% url 'dashboard:driver_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add First Driver
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

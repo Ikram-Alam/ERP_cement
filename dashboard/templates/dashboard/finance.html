@@ -1,0 +1,464 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/finance.css' %}">
+{% endblock %}
+
+{% block title %}Finance Analytics - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="finance-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><i class="fas fa-chart-line"></i> Finance Analytics</h1>
+            <p class="subtitle">Revenue tracking, expense analysis, and financial insights</p>
+        </div>
+        
+        <!-- Date Range Filter -->
+        <form method="get" class="filter-form">
+            <div class="date-filter">
+                <label>From:</label>
+                <input type="date" name="date_from" value="{{ date_from }}" required>
+                
+                <label>To:</label>
+                <input type="date" name="date_to" value="{{ date_to }}" required>
+                
+                <button type="submit" class="btn-filter">
+                    <i class="fas fa-search"></i> Apply
+                </button>
+                
+                <a href="{% url 'dashboard:finance' %}" class="btn-reset">
+                    <i class="fas fa-redo"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="metrics-grid">
+        <div class="metric-card revenue-card">
+            <div class="metric-icon">
+                <i class="fas fa-rupee-sign"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Total Revenue</h3>
+                <p class="metric-value">₹{{ finance_data.total_revenue|floatformat:2 }}</p>
+                <span class="metric-label">{{ finance_data.delivered_orders }} delivered orders</span>
+            </div>
+        </div>
+
+        <div class="metric-card paid-card">
+            <div class="metric-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Total Collected</h3>
+                <p class="metric-value">₹{{ finance_data.total_paid|floatformat:2 }}</p>
+                <span class="metric-label">{{ finance_data.collection_rate|floatformat:1 }}% collection rate</span>
+            </div>
+        </div>
+
+        <div class="metric-card outstanding-card">
+            <div class="metric-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Outstanding</h3>
+                <p class="metric-value">₹{{ finance_data.outstanding|floatformat:2 }}</p>
+                <span class="metric-label">Pending collections</span>
+            </div>
+        </div>
+
+        <div class="metric-card pending-card">
+            <div class="metric-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Pending Revenue</h3>
+                <p class="metric-value">₹{{ finance_data.pending_revenue|floatformat:2 }}</p>
+                <span class="metric-label">{{ finance_data.total_orders|add:"-"|add:finance_data.delivered_orders }} pending orders</span>
+            </div>
+        </div>
+
+        <div class="metric-card avg-card">
+            <div class="metric-icon">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Avg Order Value</h3>
+                <p class="metric-value">₹{{ finance_data.avg_order_value|floatformat:2 }}</p>
+                <span class="metric-label">Per delivered order</span>
+            </div>
+        </div>
+
+        <div class="metric-card orders-card">
+            <div class="metric-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Total Orders</h3>
+                <p class="metric-value">{{ finance_data.total_orders }}</p>
+                <span class="metric-label">In selected period</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="charts-row">
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2><i class="fas fa-chart-line"></i> Revenue Trend (Last 6 Months)</h2>
+            </div>
+            <div class="chart-body">
+                <canvas id="monthlyRevenueChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2><i class="fas fa-chart-area"></i> Daily Revenue (Selected Period)</h2>
+            </div>
+            <div class="chart-body">
+                <canvas id="dailyRevenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="charts-row">
+        <div class="chart-container small">
+            <div class="chart-header">
+                <h2><i class="fas fa-chart-pie"></i> Order Status Breakdown</h2>
+            </div>
+            <div class="chart-body">
+                <canvas id="orderStatusChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container small">
+            <div class="chart-header">
+                <h2><i class="fas fa-chart-pie"></i> Payment Status Distribution</h2>
+            </div>
+            <div class="chart-body">
+                <canvas id="paymentStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products and Vendors -->
+    <div class="tables-row">
+        <div class="table-container">
+            <div class="table-header">
+                <h2><i class="fas fa-trophy"></i> Top Products by Revenue</h2>
+            </div>
+            <div class="table-body">
+                {% if top_products %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Product</th>
+                            <th>Quantity Sold</th>
+                            <th>Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in top_products %}
+                        <tr>
+                            <td class="rank">
+                                {% if forloop.counter == 1 %}
+                                    <i class="fas fa-crown gold"></i>
+                                {% elif forloop.counter == 2 %}
+                                    <i class="fas fa-crown silver"></i>
+                                {% elif forloop.counter == 3 %}
+                                    <i class="fas fa-crown bronze"></i>
+                                {% else %}
+                                    {{ forloop.counter }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ product.product__name }}</strong>
+                                <span class="grade-badge">{{ product.product__grade }}</span>
+                            </td>
+                            <td>{{ product.total_quantity|floatformat:0 }} bags</td>
+                            <td class="revenue">₹{{ product.total_revenue|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <p>No product sales in this period</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <h2><i class="fas fa-star"></i> Top Vendors by Revenue</h2>
+            </div>
+            <div class="table-body">
+                {% if top_vendors %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Vendor</th>
+                            <th>Orders</th>
+                            <th>Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vendor in top_vendors %}
+                        <tr>
+                            <td class="rank">
+                                {% if forloop.counter == 1 %}
+                                    <i class="fas fa-crown gold"></i>
+                                {% elif forloop.counter == 2 %}
+                                    <i class="fas fa-crown silver"></i>
+                                {% elif forloop.counter == 3 %}
+                                    <i class="fas fa-crown bronze"></i>
+                                {% else %}
+                                    {{ forloop.counter }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ vendor.vendor__name }}</strong>
+                                {% if vendor.vendor__company_name %}
+                                <span class="company">{{ vendor.vendor__company_name }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ vendor.total_orders }} orders</td>
+                            <td class="revenue">₹{{ vendor.total_revenue|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <p>No vendor data in this period</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Breakdown Details -->
+    <div class="payment-details">
+        <div class="detail-header">
+            <h2><i class="fas fa-wallet"></i> Payment Status Details</h2>
+        </div>
+        <div class="payment-grid">
+            {% for payment in payment_breakdown %}
+            <div class="payment-item">
+                <div class="payment-status">{{ payment.status }}</div>
+                <div class="payment-count">{{ payment.count }} orders</div>
+                <div class="payment-amount">₹{{ payment.amount|floatformat:2 }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    // Data from Django context
+    const monthlyData = {{ monthly_data_json|safe }};
+    const statusBreakdown = {{ status_breakdown_json|safe }};
+    const paymentBreakdown = {{ payment_breakdown_json|safe }};
+    const dailyRevenue = {{ daily_revenue_json|safe }};
+
+    // Color schemes
+    const colors = {
+        primary: '#4f46e5',
+        success: '#10b981',
+        warning: '#f59e0b',
+        danger: '#ef4444',
+        info: '#3b82f6',
+        purple: '#8b5cf6',
+    };
+
+    // Monthly Revenue Chart
+    const monthlyCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+    new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+            labels: monthlyData.map(d => d.month),
+            datasets: [{
+                label: 'Revenue (₹)',
+                data: monthlyData.map(d => d.revenue),
+                borderColor: colors.primary,
+                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointBackgroundColor: colors.primary,
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: { size: 14 },
+                    bodyFont: { size: 13 },
+                    callbacks: {
+                        label: (context) => `Revenue: ₹${context.parsed.y.toLocaleString('en-IN', {minimumFractionDigits: 2})}`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (value) => '₹' + value.toLocaleString('en-IN')
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // Daily Revenue Chart
+    const dailyCtx = document.getElementById('dailyRevenueChart').getContext('2d');
+    new Chart(dailyCtx, {
+        type: 'bar',
+        data: {
+            labels: dailyRevenue.map(d => d.date),
+            datasets: [{
+                label: 'Daily Revenue (₹)',
+                data: dailyRevenue.map(d => d.revenue),
+                backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                borderColor: colors.success,
+                borderWidth: 2,
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    callbacks: {
+                        label: (context) => `Revenue: ₹${context.parsed.y.toLocaleString('en-IN', {minimumFractionDigits: 2})}`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (value) => '₹' + value.toLocaleString('en-IN')
+                    },
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+
+    // Order Status Pie Chart
+    const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: statusBreakdown.map(s => s.status),
+            datasets: [{
+                data: statusBreakdown.map(s => s.count),
+                backgroundColor: [
+                    colors.primary,
+                    colors.success,
+                    colors.warning,
+                    colors.danger,
+                    colors.info,
+                    colors.purple,
+                    '#ec4899',
+                    '#14b8a6'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { padding: 15, font: { size: 12 } }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    callbacks: {
+                        label: (context) => `${context.label}: ${context.parsed} orders`
+                    }
+                }
+            }
+        }
+    });
+
+    // Payment Status Pie Chart
+    const paymentCtx = document.getElementById('paymentStatusChart').getContext('2d');
+    new Chart(paymentCtx, {
+        type: 'doughnut',
+        data: {
+            labels: paymentBreakdown.map(p => p.status),
+            datasets: [{
+                data: paymentBreakdown.map(p => p.amount),
+                backgroundColor: [
+                    colors.success,
+                    colors.warning,
+                    colors.danger,
+                    colors.info,
+                    colors.purple
+                ],
+                borderWidth: 2,
+                borderColor: '#fff',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { padding: 15, font: { size: 12 } }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    callbacks: {
+                        label: (context) => `${context.label}: ₹${context.parsed.toLocaleString('en-IN', {minimumFractionDigits: 2})}`
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

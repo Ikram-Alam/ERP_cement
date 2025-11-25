@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ app_name }} - {{ company_name }}{% endblock %}</title>
+    {% load static %}
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-industry"></i>
+                    <span class="logo-text">CemERP</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <a href="{% url 'dashboard:home' %}" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item {% if request.resolver_match.url_name == 'order_create' %}active{% endif %}">
+                        <a href="{% url 'dashboard:order_create' %}" class="nav-link">
+                            <i class="fas fa-plus-circle"></i>
+                            <span class="nav-text">Create Order</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item {% if request.resolver_match.url_name == 'vendor_list' or request.resolver_match.url_name == 'vendor_create' or request.resolver_match.url_name == 'vendor_edit' %}active{% endif %}">
+                        <a href="{% url 'dashboard:vendor_list' %}" class="nav-link">
+                            <i class="fas fa-store"></i>
+                            <span class="nav-text">Vendors</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item {% if request.resolver_match.url_name == 'driver_list' or request.resolver_match.url_name == 'driver_create' or request.resolver_match.url_name == 'driver_update' %}active{% endif %}">
+                        <a href="{% url 'dashboard:driver_list' %}" class="nav-link">
+                            <i class="fas fa-truck"></i>
+                            <span class="nav-text">Drivers</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item {% if request.resolver_match.url_name == 'stock_list' or request.resolver_match.url_name == 'stock_update' or request.resolver_match.url_name == 'product_create' %}active{% endif %}">
+                        <a href="{% url 'dashboard:stock_list' %}" class="nav-link">
+                            <i class="fas fa-boxes"></i>
+                            <span class="nav-text">Stock Level</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item {% if request.resolver_match.url_name == 'pending_orders' %}active{% endif %}">
+                        <a href="{% url 'dashboard:pending_orders' %}" class="nav-link">
+                            <i class="fas fa-clock"></i>
+                            <span class="nav-text">Pending Orders</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item {% if request.resolver_match.url_name == 'daily_dispatch' %}active{% endif %}">
+                        <a href="{% url 'dashboard:daily_dispatch' %}" class="nav-link">
+                            <i class="fas fa-shipping-fast"></i>
+                            <span class="nav-text">Daily Dispatch</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item {% if request.resolver_match.url_name == 'finance' %}active{% endif %}">
+                        <a href="{% url 'dashboard:finance' %}" class="nav-link">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="nav-text">Finance</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item {% if request.resolver_match.url_name == 'alerts' %}active{% endif %}">
+                        <a href="{% url 'dashboard:alerts' %}" class="nav-link">
+                            <i class="fas fa-bell"></i>
+                            <span class="nav-text">Alerts</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="sidebar-footer">
+                    <ul class="nav-list">
+                        <li class="nav-item {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                            <a href="{% url 'dashboard:settings' %}" class="nav-link">
+                                <i class="fas fa-cog"></i>
+                                <span class="nav-text">Settings</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {% if request.resolver_match.url_name == 'support' %}active{% endif %}">
+                            <a href="{% url 'dashboard:support' %}" class="nav-link">
+                                <i class="fas fa-question-circle"></i>
+                                <span class="nav-text">Support</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link logout-link">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span class="nav-text">Logout</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="mobile-toggle" id="mobileToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                </div>
+                
+                <div class="header-right">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    
+                    <div class="header-actions">
+                        <button class="header-btn notification-btn">
+                            <i class="fas fa-bell"></i>
+                            {% if stats %}<span class="notification-badge">{{ stats.low_stock_alerts|add:stats.delayed_orders }}</span>{% endif %}
+                        </button>
+                        
+                        <div class="user-profile">
+                            <div class="avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="user-info">
+                                <span class="user-name">Admin User</span>
+                                <span class="user-role">Administrator</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page Content -->
+            <div class="content-wrapper">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    <!-- JavaScript -->
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
