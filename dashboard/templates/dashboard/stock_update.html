@@ -5,11 +5,406 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/stock-pages.css' %}">
+<style>
+    /* Modern Form Styling */
+    .modern-form-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+    }
+
+    .form-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .form-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.95;
+        font-size: 1.1rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+        text-decoration: none;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+        transition: opacity 0.3s;
+    }
+
+    .back-link:hover {
+        opacity: 1;
+    }
+
+    /* Current Stock Banner */
+    .current-stock-banner {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-around;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        border-left: 5px solid #667eea;
+    }
+
+    .banner-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .banner-content i {
+        font-size: 2.5rem;
+        color: #667eea;
+    }
+
+    .banner-content h3 {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .stock-value {
+        margin: 0.5rem 0 0 0;
+        color: #1a1a2e;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    /* Form Sections */
+    .form-section-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .form-section-card:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #f1f3f5;
+    }
+
+    .section-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .section-title h3 {
+        margin: 0;
+        color: #1a1a2e;
+        font-size: 1.3rem;
+    }
+
+    .section-title p {
+        margin: 0.25rem 0 0 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    /* Input Styling */
+    .input-wrapper {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #667eea;
+        font-size: 1.1rem;
+        z-index: 1;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem 0.875rem 3rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-input:hover {
+        border-color: #cbd5e0;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #495057;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .required-star {
+        color: #e74c3c;
+        margin-left: 0.25rem;
+    }
+
+    /* Form Grid */
+    .input-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .input-grid .full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* Stock Preview */
+    .stock-preview {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        border: 2px solid #e9ecef;
+    }
+
+    .preview-content h4 {
+        margin: 0 0 1rem 0;
+        color: #667eea;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .preview-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .preview-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .preview-row.total {
+        border-bottom: none;
+        border-top: 2px solid #667eea;
+        padding-top: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .preview-row.operation {
+        color: #667eea;
+    }
+
+    /* Info Card */
+    .info-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 2rem;
+        color: white;
+        position: sticky;
+        top: 2rem;
+    }
+
+    .info-card h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+    }
+
+    .guide-section {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+    }
+
+    .guide-section h4 {
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .guide-section p {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 0.9rem;
+    }
+
+    .quick-tips {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .quick-tips h4 {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+    }
+
+    .quick-tips ul {
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+
+    .quick-tips li {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+    }
+
+    /* Action Buttons */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.875rem 2rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    .error-message {
+        color: #e74c3c;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .alert-danger {
+        background: #fee;
+        border: 2px solid #fcc;
+        color: #c33;
+    }
+
+    .alert i {
+        font-size: 1.5rem;
+    }
+
+    .form-container {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+        .form-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .info-card {
+            position: static;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .input-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .current-stock-banner {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <div>
+<div class="modern-form-container">
+    <div class="form-header">
         <a href="{% url 'dashboard:stock_list' %}" class="back-link">
             <i class="fas fa-arrow-left"></i> Back to Stock
         </a>
@@ -17,197 +412,216 @@
             <i class="fas fa-boxes"></i>
             Adjust Stock - {{ object.name }}
         </h1>
+        <p>Manage inventory levels for this product</p>
     </div>
-</div>
 
-<div class="form-container">
-    <div class="form-card">
-        <!-- Current Stock Info -->
-        <div class="current-stock-banner {% if object.stock_quantity == 0 %}banner-danger{% elif object.is_low_stock %}banner-warning{% else %}banner-success{% endif %}">
-            <div class="banner-content">
-                <i class="fas fa-boxes"></i>
-                <div>
-                    <h3>Current Stock</h3>
-                    <p class="stock-value">{{ current_stock }} bags</p>
-                </div>
-            </div>
-            <div class="banner-content">
-                <i class="fas fa-money-bill-wave"></i>
-                <div>
-                    <h3>Stock Value</h3>
-                    <p class="stock-value">₹{{ object.stock_value|floatformat:0 }}</p>
-                </div>
-            </div>
-        </div>
-        
-        {% if form.errors %}
-        <div class="alert alert-danger">
-            <i class="fas fa-exclamation-triangle"></i>
+    <!-- Current Stock Banner -->
+    <div class="current-stock-banner">
+        <div class="banner-content">
+            <i class="fas fa-boxes"></i>
             <div>
-                <strong>Please correct the following errors:</strong>
-                <ul>
-                    {% for field, errors in form.errors.items %}
-                        {% for error in errors %}
-                        <li>{{ field }}: {{ error }}</li>
-                        {% endfor %}
-                    {% endfor %}
-                </ul>
+                <h3>Current Stock</h3>
+                <p class="stock-value">{{ current_stock }} bags</p>
             </div>
         </div>
-        {% endif %}
-        
-        <form method="post" id="stockUpdateForm" novalidate>
-            {% csrf_token %}
-            
-            <!-- Product Information (Read-only) -->
-            <div class="form-section">
-                <h3>
-                    <i class="fas fa-info-circle"></i>
-                    Product Information
-                </h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="{{ form.name.id_for_label }}">
-                            {{ form.name.label }}
-                        </label>
-                        {{ form.name }}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.grade.id_for_label }}">
-                            {{ form.grade.label }}
-                        </label>
-                        {{ form.grade }}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.weight_per_bag.id_for_label }}">
-                            {{ form.weight_per_bag.label }}
-                        </label>
-                        {{ form.weight_per_bag }}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.price_per_bag.id_for_label }}">
-                            {{ form.price_per_bag.label }}
-                        </label>
-                        {{ form.price_per_bag }}
-                        {% if form.price_per_bag.errors %}
-                        <span class="error-message">{{ form.price_per_bag.errors.0 }}</span>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group full-width">
-                        <label for="{{ form.reorder_level.id_for_label }}">
-                            {{ form.reorder_level.label }}
-                        </label>
-                        {{ form.reorder_level }}
-                        {% if form.reorder_level.errors %}
-                        <span class="error-message">{{ form.reorder_level.errors.0 }}</span>
-                        {% endif %}
-                    </div>
-                </div>
+        <div class="banner-content">
+            <i class="fas fa-money-bill-wave"></i>
+            <div>
+                <h3>Stock Value</h3>
+                <p class="stock-value">₹{{ object.stock_value|floatformat:0 }}</p>
             </div>
-            
-            <!-- Stock Adjustment Section -->
-            <div class="form-section adjustment-section">
-                <h3>
-                    <i class="fas fa-exchange-alt"></i>
-                    Stock Adjustment
-                </h3>
-                
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="{{ form.adjustment_type.id_for_label }}">
-                            Adjustment Type
-                            <span class="required">*</span>
-                        </label>
-                        {{ form.adjustment_type }}
+        </div>
+    </div>
+
+    <!-- Error Messages -->
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+            <strong>Please correct the following errors:</strong>
+            <ul style="margin: 0.5rem 0 0 0; padding-left: 1.5rem;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="form-container">
+        <div>
+            <form method="post" id="stockUpdateForm" novalidate>
+                {% csrf_token %}
+
+                <!-- Product Information -->
+                <div class="form-section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="section-title">
+                            <h3>Product Information</h3>
+                            <p>Current product details</p>
+                        </div>
                     </div>
-                    
-                    <div class="form-group full-width">
-                        <label for="{{ form.adjustment_quantity.id_for_label }}">
-                            {{ form.adjustment_quantity.label }}
-                            <span class="required">*</span>
-                        </label>
-                        {{ form.adjustment_quantity }}
-                        {% if form.adjustment_quantity.errors %}
-                        <span class="error-message">{{ form.adjustment_quantity.errors.0 }}</span>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group full-width">
-                        <label for="{{ form.adjustment_reason.id_for_label }}">
-                            {{ form.adjustment_reason.label }}
-                        </label>
-                        {{ form.adjustment_reason }}
-                        {% if form.adjustment_reason.errors %}
-                        <span class="error-message">{{ form.adjustment_reason.errors.0 }}</span>
-                        {% endif %}
+
+                    <div class="input-grid">
+                        <div class="input-wrapper">
+                            <label for="{{ form.name.id_for_label }}">
+                                {{ form.name.label }}
+                            </label>
+                            <i class="fas fa-tag input-icon"></i>
+                            {{ form.name }}
+                        </div>
+
+                        <div class="input-wrapper">
+                            <label for="{{ form.grade.id_for_label }}">
+                                {{ form.grade.label }}
+                            </label>
+                            <i class="fas fa-certificate input-icon"></i>
+                            {{ form.grade }}
+                        </div>
+
+                        <div class="input-wrapper">
+                            <label for="{{ form.weight_per_bag.id_for_label }}">
+                                {{ form.weight_per_bag.label }}
+                            </label>
+                            <i class="fas fa-weight input-icon"></i>
+                            {{ form.weight_per_bag }}
+                        </div>
+
+                        <div class="input-wrapper">
+                            <label for="{{ form.price_per_bag.id_for_label }}">
+                                {{ form.price_per_bag.label }}
+                            </label>
+                            <i class="fas fa-rupee-sign input-icon"></i>
+                            {{ form.price_per_bag }}
+                            {% if form.price_per_bag.errors %}
+                                <span class="error-message">{{ form.price_per_bag.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="input-wrapper full-width">
+                            <label for="{{ form.reorder_level.id_for_label }}">
+                                {{ form.reorder_level.label }}
+                            </label>
+                            <i class="fas fa-bell input-icon"></i>
+                            {{ form.reorder_level }}
+                            {% if form.reorder_level.errors %}
+                                <span class="error-message">{{ form.reorder_level.errors.0 }}</span>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Preview Calculation -->
-                <div class="stock-preview" id="stockPreview" style="display: none;">
-                    <div class="preview-content">
-                        <h4><i class="fas fa-calculator"></i> Stock Preview</h4>
-                        <div class="preview-details">
-                            <div class="preview-row">
-                                <span>Current Stock:</span>
-                                <strong id="previewCurrent">{{ current_stock }} bags</strong>
-                            </div>
-                            <div class="preview-row operation" id="previewOperation">
-                                <span id="operationLabel">Add:</span>
-                                <strong id="operationValue">0 bags</strong>
-                            </div>
-                            <div class="preview-row total">
-                                <span>New Stock:</span>
-                                <strong id="previewNew">{{ current_stock }} bags</strong>
+
+                <!-- Stock Adjustment -->
+                <div class="form-section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="section-title">
+                            <h3>Stock Adjustment</h3>
+                            <p>Modify inventory levels</p>
+                        </div>
+                    </div>
+
+                    <div class="input-grid">
+                        <div class="input-wrapper full-width">
+                            <label for="{{ form.adjustment_type.id_for_label }}">
+                                Adjustment Type<span class="required-star">*</span>
+                            </label>
+                            <i class="fas fa-list input-icon"></i>
+                            {{ form.adjustment_type }}
+                        </div>
+
+                        <div class="input-wrapper full-width">
+                            <label for="{{ form.adjustment_quantity.id_for_label }}">
+                                {{ form.adjustment_quantity.label }}<span class="required-star">*</span>
+                            </label>
+                            <i class="fas fa-hashtag input-icon"></i>
+                            {{ form.adjustment_quantity }}
+                            {% if form.adjustment_quantity.errors %}
+                                <span class="error-message">{{ form.adjustment_quantity.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="input-wrapper full-width">
+                            <label for="{{ form.adjustment_reason.id_for_label }}">
+                                {{ form.adjustment_reason.label }}
+                            </label>
+                            <i class="fas fa-comment input-icon"></i>
+                            {{ form.adjustment_reason }}
+                            {% if form.adjustment_reason.errors %}
+                                <span class="error-message">{{ form.adjustment_reason.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Preview Calculation -->
+                    <div class="stock-preview" id="stockPreview" style="display: none;">
+                        <div class="preview-content">
+                            <h4><i class="fas fa-calculator"></i> Stock Preview</h4>
+                            <div class="preview-details">
+                                <div class="preview-row">
+                                    <span>Current Stock:</span>
+                                    <strong id="previewCurrent">{{ current_stock }} bags</strong>
+                                </div>
+                                <div class="preview-row operation" id="previewOperation">
+                                    <span id="operationLabel">Add:</span>
+                                    <strong id="operationValue">0 bags</strong>
+                                </div>
+                                <div class="preview-row total">
+                                    <span>New Stock:</span>
+                                    <strong id="previewNew">{{ current_stock }} bags</strong>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <a href="{% url 'dashboard:stock_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Update Stock
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Info Card -->
+        <div class="info-card">
+            <h3><i class="fas fa-lightbulb"></i> Stock Adjustment Guide</h3>
+
+            <div class="guide-section">
+                <h4><i class="fas fa-plus-circle"></i> Add Stock</h4>
+                <p>Use when receiving new stock from suppliers or production.</p>
             </div>
-            
-            <!-- Form Actions -->
-            <div class="form-actions">
-                <a href="{% url 'dashboard:stock_list' %}" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Cancel
-                </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Update Stock
-                </button>
+
+            <div class="guide-section">
+                <h4><i class="fas fa-minus-circle"></i> Remove Stock</h4>
+                <p>Use for damaged goods, losses, or stock write-offs.</p>
             </div>
-        </form>
-    </div>
-    
-    <!-- Info Card -->
-    <div class="info-card">
-        <h3><i class="fas fa-lightbulb"></i> Stock Adjustment Guide</h3>
-        
-        <div class="guide-section">
-            <h4><i class="fas fa-plus-circle"></i> Add Stock</h4>
-            <p>Use when receiving new stock from suppliers or production.</p>
-        </div>
-        
-        <div class="guide-section">
-            <h4><i class="fas fa-minus-circle"></i> Remove Stock</h4>
-            <p>Use for damaged goods, losses, or stock write-offs.</p>
-        </div>
-        
-        <div class="guide-section">
-            <h4><i class="fas fa-edit"></i> Set Stock</h4>
-            <p>Manually set stock to a specific value for corrections.</p>
-        </div>
-        
-        <div class="quick-tips">
-            <h4><i class="fas fa-info-circle"></i> Important Notes</h4>
-            <ul>
-                <li>All stock adjustments are final</li>
-                <li>Cannot remove more than available stock</li>
-                <li>Add notes for audit trail</li>
-                <li>Low stock alerts trigger at reorder level</li>
-            </ul>
+
+            <div class="guide-section">
+                <h4><i class="fas fa-edit"></i> Set Stock</h4>
+                <p>Manually set stock to a specific value for corrections.</p>
+            </div>
+
+            <div class="quick-tips">
+                <h4><i class="fas fa-info-circle"></i> Important Notes</h4>
+                <ul>
+                    <li>All stock adjustments are final</li>
+                    <li>Add notes for audit trail</li>
+                    <li>Low stock alerts trigger at reorder level</li>
+                    <li>Monitor stock value changes</li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
@@ -223,17 +637,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const operationValue = document.getElementById('operationValue');
     const previewNew = document.getElementById('previewNew');
     const previewOperation = document.getElementById('previewOperation');
-    
+
     function updatePreview() {
         const type = adjustmentType.value;
         const quantity = parseInt(adjustmentQuantity.value) || 0;
-        
+
         if (quantity > 0) {
             stockPreview.style.display = 'block';
-            
+
             let newStock = currentStock;
             let operation = '';
-            
+
             if (type === 'add') {
                 newStock = currentStock + quantity;
                 operation = 'Add:';
@@ -247,11 +661,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 operation = 'Set to:';
                 previewOperation.style.color = '#007bff';
             }
-            
+
             operationLabel.textContent = operation;
             operationValue.textContent = quantity + ' bags';
             previewNew.textContent = newStock + ' bags';
-            
+
             // Warn if going negative
             if (newStock < 0) {
                 previewNew.style.color = '#dc3545';
@@ -262,7 +676,7 @@ document.addEventListener('DOMContentLoaded', function() {
             stockPreview.style.display = 'none';
         }
     }
-    
+
     adjustmentType.addEventListener('change', updatePreview);
     adjustmentQuantity.addEventListener('input', updatePreview);
 });

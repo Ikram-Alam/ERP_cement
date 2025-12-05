@@ -11,8 +11,8 @@
 <div class="page-header">
     <h1><i class="fas fa-shipping-fast"></i> Daily Dispatch & Supply Chain</h1>
     <div class="header-actions">
-        <a href="{% url 'dashboard:order_create' %}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> New Order
+        <a href="{% url 'dashboard:order_create' %}" class="btn btn-primary btn-animated">
+            <i class="fas fa-truck-loading"></i> New Dispatch Order
         </a>
     </div>
 </div>
@@ -200,6 +200,12 @@
                             {% endif %}
                         </span>
                     </div>
+                    
+                    <div class="order-actions">
+                        <a href="{% url 'dashboard:order_detail' order.pk %}" class="btn-icon" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>
                 </div>
                 
                 <div class="dispatch-details">
@@ -317,13 +323,9 @@
                 
                 {% if order.status == 'dispatched' %}
                 <div class="dispatch-actions">
-                    <form method="post" action="{% url 'dashboard:order_status_update' order.pk %}" style="display: inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="status" value="delivered">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-check"></i> Mark as Delivered
-                        </button>
-                    </form>
+                    <button type="button" class="btn btn-success btn-deliver" onclick="confirmDelivery({{ order.pk }}, '{{ order.order_number }}')">
+                        <i class="fas fa-check"></i> Mark as Delivered
+                    </button>
                 </div>
                 {% endif %}
             </div>
@@ -378,11 +380,39 @@
             <i class="fas fa-calendar-check"></i> View Today's Dispatches
         </a>
         {% else %}
-        <a href="{% url 'dashboard:order_create' %}" class="btn btn-primary">
+        <a href="{% url 'dashboard:order_create' %}" class="btn btn-primary btn-animated">
             <i class="fas fa-plus"></i> Create New Order
         </a>
         {% endif %}
     </div>
     {% endif %}
 </div>
+
+<script>
+function confirmDelivery(orderId, orderNumber) {
+    if (confirm(`🚚 Mark Order ${orderNumber} as Delivered?\n\nThis will update the order status and record the delivery timestamp.`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/dashboard/orders/${orderId}/status-update/`;
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        }
+        
+        const statusInput = document.createElement('input');
+        statusInput.type = 'hidden';
+        statusInput.name = 'status';
+        statusInput.value = 'delivered';
+        form.appendChild(statusInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
 {% endblock %}

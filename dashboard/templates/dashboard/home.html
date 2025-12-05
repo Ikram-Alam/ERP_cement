@@ -1,94 +1,188 @@
 {% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
 
 {% block page_title %}Dashboard Home{% endblock %}
 
 {% block content %}
 <div class="dashboard-home">
+    <!-- Welcome Header -->
+    <div class="welcome-header">
+        <div class="welcome-content">
+            <h1 class="welcome-title">
+                <span class="wave-emoji">👋</span>
+                Welcome to CemERP Dashboard
+            </h1>
+            <p class="welcome-subtitle">Here's what's happening with your cement business today</p>
+        </div>
+        <div class="header-date">
+            <i class="fas fa-calendar-day"></i>
+            <span id="currentDate"></span>
+        </div>
+    </div>
+
     <!-- Quick Stats Grid -->
     <div class="stats-grid">
         <!-- Total Orders Card -->
-        <div class="stat-card card-blue">
-            <div class="stat-icon">
+        <div class="stat-card card-gradient-blue">
+            <div class="stat-background">
                 <i class="fas fa-shopping-cart"></i>
             </div>
-            <div class="stat-details">
-                <h3 class="stat-value">{{ stats.total_orders }}</h3>
-                <p class="stat-label">Total Orders</p>
-                <span class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> 12% from last month
-                </span>
+            <div class="stat-content">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-details">
+                    <p class="stat-label">Total Orders</p>
+                    <h3 class="stat-value" data-target="{{ stats.total_orders }}">0</h3>
+                    <span class="stat-change {% if stats.orders_change >= 0 %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if stats.orders_change >= 0 %}up{% else %}down{% endif %}"></i> 
+                        {{ stats.orders_change|floatformat:1 }}% from last month
+                    </span>
+                </div>
             </div>
         </div>
         
         <!-- Pending Orders Card -->
-        <div class="stat-card card-orange">
-            <div class="stat-icon">
+        <div class="stat-card card-gradient-orange">
+            <div class="stat-background">
                 <i class="fas fa-clock"></i>
             </div>
-            <div class="stat-details">
-                <h3 class="stat-value">{{ stats.pending_orders }}</h3>
-                <p class="stat-label">Pending Orders</p>
-                <span class="stat-change">
-                    <i class="fas fa-sync"></i> In progress
-                </span>
+            <div class="stat-content">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-details">
+                    <p class="stat-label">Pending Orders</p>
+                    <h3 class="stat-value" data-target="{{ stats.pending_orders }}">0</h3>
+                    <span class="stat-change">
+                        <i class="fas fa-sync"></i> Requires attention
+                    </span>
+                </div>
             </div>
         </div>
         
         <!-- Delivered Today Card -->
-        <div class="stat-card card-green">
-            <div class="stat-icon">
+        <div class="stat-card card-gradient-green">
+            <div class="stat-background">
                 <i class="fas fa-truck"></i>
             </div>
-            <div class="stat-details">
-                <h3 class="stat-value">{{ stats.delivered_today }}</h3>
-                <p class="stat-label">Delivered Today</p>
-                <span class="stat-change positive">
-                    <i class="fas fa-check-circle"></i> {{ stats.active_drivers }} drivers active
-                </span>
+            <div class="stat-content">
+                <div class="stat-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="stat-details">
+                    <p class="stat-label">Delivered Today</p>
+                    <h3 class="stat-value" data-target="{{ stats.delivered_today }}">0</h3>
+                    <span class="stat-change positive">
+                        <i class="fas fa-check-circle"></i> {{ stats.active_drivers }} drivers active
+                    </span>
+                </div>
             </div>
         </div>
         
         <!-- Stock Level Card -->
-        <div class="stat-card card-purple">
-            <div class="stat-icon">
+        <div class="stat-card card-gradient-purple">
+            <div class="stat-background">
                 <i class="fas fa-boxes"></i>
             </div>
-            <div class="stat-details">
-                <h3 class="stat-value">{{ stats.total_stock|floatformat:0 }}</h3>
-                <p class="stat-label">Total Bags in Stock</p>
-                <span class="stat-change {% if stats.low_stock_alerts > 0 %}warning{% else %}positive{% endif %}">
-                    <i class="fas fa-exclamation-triangle"></i> {{ stats.low_stock_alerts }} low stock alert{{ stats.low_stock_alerts|pluralize }}
-                </span>
+            <div class="stat-content">
+                <div class="stat-icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="stat-details">
+                    <p class="stat-label">Total Stock (Bags)</p>
+                    <h3 class="stat-value" data-target="{{ stats.total_stock }}">0</h3>
+                    <span class="stat-change {% if stats.low_stock_alerts > 0 %}warning{% else %}positive{% endif %}">
+                        <i class="fas fa-{% if stats.low_stock_alerts > 0 %}exclamation-triangle{% else %}check-circle{% endif %}"></i> 
+                        {% if stats.low_stock_alerts > 0 %}
+                            {{ stats.low_stock_alerts }} low stock alert{{ stats.low_stock_alerts|pluralize }}
+                        {% else %}
+                            All stock levels healthy
+                        {% endif %}
+                    </span>
+                </div>
             </div>
         </div>
         
         <!-- Revenue Card -->
-        <div class="stat-card card-teal">
-            <div class="stat-icon">
-                <i class="fas fa-dollar-sign"></i>
+        <div class="stat-card card-gradient-teal">
+            <div class="stat-background">
+                <i class="fas fa-rupee-sign"></i>
             </div>
-            <div class="stat-details">
-                <h3 class="stat-value">₹{{ stats.revenue_today|floatformat:0 }}</h3>
-                <p class="stat-label">Revenue Today</p>
-                <span class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> 8% from yesterday
-                </span>
+            <div class="stat-content">
+                <div class="stat-icon">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-details">
+                    <p class="stat-label">Revenue Today</p>
+                    <h3 class="stat-value">₹<span data-target="{{ stats.revenue_today }}">0</span></h3>
+                    <span class="stat-change {% if stats.revenue_change >= 0 %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if stats.revenue_change >= 0 %}up{% else %}down{% endif %}"></i> 
+                        {{ stats.revenue_change|floatformat:1 }}% from yesterday
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delayed Orders Card -->
+        <div class="stat-card card-gradient-red">
+            <div class="stat-background">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="stat-details">
+                    <p class="stat-label">Delayed Orders</p>
+                    <h3 class="stat-value" data-target="{{ stats.delayed_orders }}">0</h3>
+                    <span class="stat-change {% if stats.delayed_orders > 0 %}warning{% else %}positive{% endif %}">
+                        <i class="fas fa-{% if stats.delayed_orders > 0 %}clock{% else %}check{% endif %}"></i> 
+                        {% if stats.delayed_orders > 0 %}Immediate action needed{% else %}All on schedule{% endif %}
+                    </span>
+                </div>
             </div>
         </div>
     </div>
     
     <!-- Main Dashboard Content Grid -->
     <div class="dashboard-grid">
+        <!-- Performance Chart -->
+        <div class="dashboard-card chart-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-chart-line"></i>
+                    Revenue Overview
+                </h2>
+                <div class="chart-filters">
+                    <button class="filter-btn active" data-period="week">Week</button>
+                    <button class="filter-btn" data-period="month">Month</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
         <!-- Alerts Section -->
         <div class="dashboard-card alerts-card">
             <div class="card-header">
                 <h2 class="card-title">
                     <i class="fas fa-bell"></i>
-                    Recent Alerts
+                    System Alerts
+                    {% if alerts %}
+                    <span class="alert-count">{{ alerts|length }}</span>
+                    {% endif %}
                 </h2>
-                <a href="#" class="view-all-link">View All <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="card-body">
+                {% if alerts %}
                 <div class="alerts-list">
                     {% for alert in alerts %}
                     <div class="alert-item alert-{{ alert.type }}">
@@ -97,11 +191,19 @@
                         </div>
                         <div class="alert-content">
                             <p class="alert-message">{{ alert.message }}</p>
-                            <span class="alert-time">{{ alert.time }}</span>
+                            <span class="alert-time">
+                                <i class="fas fa-clock"></i> {{ alert.time }}
+                            </span>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-check-circle"></i>
+                    <p>All systems running smoothly!</p>
+                </div>
+                {% endif %}
             </div>
         </div>
         
@@ -110,37 +212,57 @@
             <div class="card-header">
                 <h2 class="card-title">
                     <i class="fas fa-shipping-fast"></i>
-                    Recent Deliveries
+                    Recent Orders
                 </h2>
-                <a href="#" class="view-all-link">View All <i class="fas fa-arrow-right"></i></a>
+                <a href="{% url 'dashboard:daily_dispatch' %}" class="view-all-link">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
             <div class="card-body">
+                {% if recent_deliveries %}
                 <div class="table-responsive">
-                    <table class="data-table">
+                    <table class="modern-table">
                         <thead>
                             <tr>
                                 <th>Order ID</th>
                                 <th>Vendor</th>
                                 <th>Bags</th>
                                 <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for delivery in recent_deliveries %}
                             <tr>
-                                <td class="order-id">{{ delivery.order_id }}</td>
-                                <td>{{ delivery.vendor }}</td>
-                                <td><strong>{{ delivery.bags }}</strong></td>
+                                <td class="order-id">
+                                    <i class="fas fa-file-invoice"></i>
+                                    {{ delivery.order_id }}
+                                </td>
+                                <td class="vendor-name">{{ delivery.vendor }}</td>
+                                <td class="bags-count">
+                                    <span class="badge badge-info">{{ delivery.bags }} bags</span>
+                                </td>
                                 <td>
-                                    <span class="status-badge {% if delivery.status == 'Delivered' %}status-success{% else %}status-warning{% endif %}">
+                                    <span class="status-badge status-{{ delivery.status|lower }}">
                                         {{ delivery.status }}
                                     </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'dashboard:order_detail' delivery.order_pk %}" class="btn-view-small">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No recent orders</p>
+                </div>
+                {% endif %}
             </div>
         </div>
         
@@ -154,46 +276,183 @@
             </div>
             <div class="card-body">
                 <div class="quick-actions-grid">
-                    <a href="#" class="action-btn action-primary">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>New Order</span>
+                    <a href="{% url 'dashboard:order_create' %}" class="action-btn action-primary btn-animated">
+                        <div class="action-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <span class="action-text">New Order</span>
                     </a>
-                    <a href="#" class="action-btn action-success">
-                        <i class="fas fa-check-double"></i>
-                        <span>Mark Delivered</span>
+                    <a href="{% url 'dashboard:pending_orders' %}" class="action-btn action-warning btn-animated">
+                        <div class="action-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <span class="action-text">Pending Orders</span>
                     </a>
-                    <a href="#" class="action-btn action-info">
-                        <i class="fas fa-file-invoice"></i>
-                        <span>Generate Report</span>
+                    <a href="{% url 'dashboard:stock_list' %}" class="action-btn action-info btn-animated">
+                        <div class="action-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <span class="action-text">Manage Stock</span>
                     </a>
-                    <a href="#" class="action-btn action-warning">
-                        <i class="fas fa-box"></i>
-                        <span>Update Stock</span>
+                    <a href="{% url 'dashboard:finance' %}" class="action-btn action-success btn-animated">
+                        <div class="action-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <span class="action-text">View Reports</span>
                     </a>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Performance Chart Placeholder -->
-        <div class="dashboard-card chart-card">
-            <div class="card-header">
-                <h2 class="card-title">
-                    <i class="fas fa-chart-line"></i>
-                    Performance Overview
-                </h2>
-                <div class="chart-filters">
-                    <button class="filter-btn active">Week</button>
-                    <button class="filter-btn">Month</button>
-                    <button class="filter-btn">Year</button>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="chart-placeholder">
-                    <i class="fas fa-chart-area"></i>
-                    <p>Chart will be implemented with Chart.js in next phase</p>
+                    <a href="{% url 'dashboard:driver_list' %}" class="action-btn action-purple btn-animated">
+                        <div class="action-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <span class="action-text">Manage Drivers</span>
+                    </a>
+                    <a href="{% url 'dashboard:daily_dispatch' %}" class="action-btn action-teal btn-animated">
+                        <div class="action-icon">
+                            <i class="fas fa-truck-loading"></i>
+                        </div>
+                        <span class="action-text">Daily Dispatch</span>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    // Display current date
+    const dateElement = document.getElementById('currentDate');
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    dateElement.textContent = new Date().toLocaleDateString('en-IN', options);
+
+    // Animated counter function
+    function animateCounter(element, target, duration = 2000) {
+        const start = 0;
+        const increment = target / (duration / 16);
+        let current = start;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                element.textContent = Math.floor(target).toLocaleString('en-IN');
+                clearInterval(timer);
+            } else {
+                element.textContent = Math.floor(current).toLocaleString('en-IN');
+            }
+        }, 16);
+    }
+
+    // Animate all stat values
+    document.addEventListener('DOMContentLoaded', () => {
+        const statValues = document.querySelectorAll('.stat-value[data-target]');
+        statValues.forEach(stat => {
+            const target = parseFloat(stat.dataset.target);
+            animateCounter(stat, target);
+        });
+    });
+
+    // Chart data from Django
+    const weeklyData = {{ weekly_revenue_json|safe }};
+    const monthlyData = {{ monthly_revenue_json|safe }};
+    let currentChart = null;
+    let currentPeriod = 'week';
+
+    // Create chart
+    function createChart(period) {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const data = period === 'week' ? weeklyData : monthlyData;
+        
+        // Destroy existing chart
+        if (currentChart) {
+            currentChart.destroy();
+        }
+
+        // Create gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(102, 126, 234, 0.5)');
+        gradient.addColorStop(1, 'rgba(118, 75, 162, 0.1)');
+
+        currentChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(d => period === 'week' ? d.date : d.month),
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: data.map(d => d.revenue),
+                    borderColor: '#667eea',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 3,
+                    pointHoverBackgroundColor: '#764ba2',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        padding: 16,
+                        titleFont: { size: 15, weight: 'bold' },
+                        bodyFont: { size: 14 },
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                        displayColors: false,
+                        callbacks: {
+                            label: (context) => `Revenue: ₹${context.parsed.y.toLocaleString('en-IN', {minimumFractionDigits: 2})}`
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: { size: 12 },
+                            callback: (value) => '₹' + value.toLocaleString('en-IN')
+                        },
+                        grid: { 
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        ticks: { font: { size: 12 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize chart
+    createChart('week');
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const period = btn.dataset.period;
+            currentPeriod = period;
+            createChart(period);
+        });
+    });
+</script>
 {% endblock %}

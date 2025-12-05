@@ -755,6 +755,49 @@
     }
 }
 
+/* Animated Button */
+.btn-animated {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-animated::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-animated:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-animated:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-animated i {
+    transition: transform 0.3s ease;
+}
+
+.btn-animated:hover i {
+    transform: scale(1.2) rotate(90deg);
+}
+
+.btn-animated span {
+    position: relative;
+    z-index: 1;
+}
+
 @media (max-width: 768px) {
     .warehouse-stats {
         grid-template-columns: 1fr;

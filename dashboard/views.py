@@ -42,48 +42,189 @@ class DashboardHomeView(BaseDashboardView):
         """
         Provide dashboard statistics and alerts
         """
+        from datetime import date, timedelta
+        from django.db.models import Sum, Count, Q
+        from decimal import Decimal
+        
         context = super().get_context_data(**kwargs)
         
-        # Dashboard statistics (will be dynamic later with real data)
+        # Get today's date range
+        today = date.today()
+        yesterday = today - timedelta(days=1)
+        last_month = today - timedelta(days=30)
+        
+        # Calculate real statistics
+        total_orders = Order.objects.count()
+        pending_orders = Order.objects.filter(
+            status__in=['pending', 'confirmed', 'processing']
+        ).count()
+        
+        delivered_today = Order.objects.filter(
+            order_date__date=today,
+            status='delivered'
+        ).count()
+        
+        # Stock calculation
+        total_stock = CementProduct.objects.aggregate(
+            total=Sum('stock_quantity')
+        )['total'] or 0
+        
+        low_stock_alerts = CementProduct.objects.filter(
+            stock_quantity__lt=500  # Alert threshold
+        ).count()
+        
+        # Revenue today
+        revenue_today = Order.objects.filter(
+            order_date__date=today,
+            status='delivered'
+        ).aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
+        
+        revenue_yesterday = Order.objects.filter(
+            order_date__date=yesterday,
+            status='delivered'
+        ).aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
+        
+        # Revenue comparison
+        if revenue_yesterday > 0:
+            revenue_change = ((float(revenue_today) - float(revenue_yesterday)) / float(revenue_yesterday)) * 100
+        else:
+            revenue_change = 0
+        
+        # Active drivers
+        active_drivers = Driver.objects.filter(is_active=True).count()
+        
+        # Delayed orders
+        delayed_orders = Order.objects.filter(
+            status__in=['confirmed', 'processing', 'dispatched'],
+            delivery_date__lt=today
+        ).count()
+        
+        # Orders this month vs last month
+        orders_this_month = Order.objects.filter(
+            order_date__date__gte=last_month
+        ).count()
+        orders_last_month = Order.objects.filter(
+            order_date__date__gte=today - timedelta(days=60),
+            order_date__date__lt=last_month
+        ).count()
+        
+        if orders_last_month > 0:
+            orders_change = ((orders_this_month - orders_last_month) / orders_last_month) * 100
+        else:
+            orders_change = 0
+        
         context['stats'] = {
-            'total_orders': 156,
-            'pending_orders': 23,
-            'delivered_today': 45,
-            'total_stock': 25000,
-            'low_stock_alerts': 3,
-            'delayed_orders': 5,
-            'revenue_today': 125000,
-            'active_drivers': 12,
+            'total_orders': total_orders,
+            'pending_orders': pending_orders,
+            'delivered_today': delivered_today,
+            'total_stock': total_stock,
+            'low_stock_alerts': low_stock_alerts,
+            'delayed_orders': delayed_orders,
+            'revenue_today': float(revenue_today),
+            'revenue_change': revenue_change,
+            'active_drivers': active_drivers,
+            'orders_change': orders_change,
         }
         
-        # Recent alerts
-        context['alerts'] = [
-            {
+        # Real alerts based on system status
+        alerts = []
+        
+        # Low stock alerts
+        low_stock_products = CementProduct.objects.filter(stock_quantity__lt=500).order_by('stock_quantity')[:3]
+        for product in low_stock_products:
+            alerts.append({
                 'type': 'warning',
                 'icon': 'exclamation-triangle',
-                'message': 'Stock running low for Grade 43',
-                'time': '10 mins ago'
-            },
-            {
+                'message': f'Stock running low for {product.name} ({product.stock_quantity} bags remaining)',
+                'time': 'Now'
+            })
+        
+        # Delayed orders alert
+        if delayed_orders > 0:
+            alerts.append({
                 'type': 'danger',
                 'icon': 'clock',
-                'message': '5 orders delayed by more than 2 hours',
-                'time': '25 mins ago'
-            },
-            {
-                'type': 'info',
-                'icon': 'truck',
-                'message': 'New delivery scheduled for tomorrow',
-                'time': '1 hour ago'
-            },
-        ]
+                'message': f'{delayed_orders} order{"s" if delayed_orders > 1 else ""} delayed past delivery date',
+                'time': 'Now'
+            })
         
-        # Recent deliveries
-        context['recent_deliveries'] = [
-            {'order_id': 'ORD-1234', 'vendor': 'ABC Constructions', 'bags': 500, 'status': 'Delivered'},
-            {'order_id': 'ORD-1235', 'vendor': 'XYZ Builders', 'bags': 300, 'status': 'In Transit'},
-            {'order_id': 'ORD-1236', 'vendor': 'PQR Developers', 'bags': 450, 'status': 'Delivered'},
-        ]
+        # Recent pending orders
+        recent_pending = Order.objects.filter(status='pending').order_by('-order_date').first()
+        if recent_pending:
+            time_diff = (today - recent_pending.order_date.date()).days
+            if time_diff == 0:
+                time_str = 'Today'
+            elif time_diff == 1:
+                time_str = 'Yesterday'
+            else:
+                time_str = f'{time_diff} days ago'
+            
+            alerts.append({
+                'type': 'info',
+                'icon': 'info-circle',
+                'message': f'New order {recent_pending.order_number} awaiting confirmation',
+                'time': time_str
+            })
+        
+        context['alerts'] = alerts[:5]  # Limit to 5 alerts
+        
+        # Recent deliveries - real data
+        recent_deliveries = Order.objects.filter(
+            status__in=['delivered', 'dispatched']
+        ).select_related('vendor').order_by('-order_date')[:8]
+        
+        deliveries_list = []
+        for order in recent_deliveries:
+            total_bags = sum(item.quantity for item in order.items.all())
+            deliveries_list.append({
+                'order_id': order.order_number,
+                'vendor': order.vendor.name,
+                'bags': total_bags,
+                'status': order.get_status_display(),
+                'order_pk': order.pk,
+            })
+        
+        context['recent_deliveries'] = deliveries_list
+        
+        # Weekly revenue data for chart
+        weekly_revenue = []
+        for i in range(6, -1, -1):
+            day = today - timedelta(days=i)
+            day_revenue = Order.objects.filter(
+                order_date__date=day,
+                status='delivered'
+            ).aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
+            
+            weekly_revenue.append({
+                'date': day.strftime('%a'),
+                'revenue': float(day_revenue)
+            })
+        
+        # Monthly revenue for comparison
+        monthly_revenue = []
+        for i in range(11, -1, -1):
+            month_date = today - timedelta(days=i*30)
+            month_start = date(month_date.year, month_date.month, 1)
+            if month_date.month == 12:
+                month_end = date(month_date.year, 12, 31)
+            else:
+                month_end = date(month_date.year, month_date.month + 1, 1) - timedelta(days=1)
+            
+            month_rev = Order.objects.filter(
+                order_date__date__gte=month_start,
+                order_date__date__lte=month_end,
+                status='delivered'
+            ).aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
+            
+            monthly_revenue.append({
+                'month': month_start.strftime('%b'),
+                'revenue': float(month_rev)
+            })
+        
+        # Convert to JSON for JavaScript
+        import json
+        context['weekly_revenue_json'] = json.dumps(weekly_revenue)
+        context['monthly_revenue_json'] = json.dumps(monthly_revenue)
         
         return context
 
@@ -133,6 +274,8 @@ class OrderCreateView(BaseDashboardView):
         """
         Handle form submission
         """
+        from decimal import Decimal
+        
         # Get form data
         vendor_id = request.POST.get('vendor')
         driver_id = request.POST.get('driver')
@@ -156,8 +299,8 @@ class OrderCreateView(BaseDashboardView):
                     driver_id=driver_id if driver_id else None,
                     delivery_date=delivery_date if delivery_date else None,
                     delivery_address=delivery_address,
-                    discount_percent=float(discount_percent) if discount_percent else 0,
-                    tax_percent=float(tax_percent) if tax_percent else 18,
+                    discount_percent=Decimal(str(discount_percent)) if discount_percent else Decimal('0'),
+                    tax_percent=Decimal(str(tax_percent)) if tax_percent else Decimal('18'),
                     payment_method=payment_method,
                     notes=notes,
                     status='pending'
@@ -170,7 +313,7 @@ class OrderCreateView(BaseDashboardView):
                             order=order,
                             product_id=product_id,
                             quantity=int(quantity),
-                            unit_price=float(price)
+                            unit_price=Decimal(str(price))
                         )
                 
                 # Calculate totals
@@ -681,6 +824,24 @@ class OrderStatusUpdateView(UpdateView):
             f'Order {self.object.order_number} status updated from "{old_status}" to "{new_status}"'
         )
         return super().form_valid(form)
+
+
+class OrderDetailView(TemplateView):
+    """
+    Display detailed order information
+    """
+    template_name = 'dashboard/order_detail.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order_id = kwargs.get('pk')
+        order = Order.objects.select_related('vendor', 'driver').prefetch_related('items__product').get(pk=order_id)
+        
+        context['order'] = order
+        context['app_name'] = 'CemERP'
+        context['company_name'] = 'Cement Industry Management'
+        
+        return context
 
 
 # ========================================

@@ -2,6 +2,44 @@
    Daily Dispatch Page Styling
    ============================================= */
 
+/* Animated Button */
+.btn-animated {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-animated:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-animated i {
+    transition: transform 0.3s ease;
+}
+
+.btn-animated:hover i {
+    transform: rotate(360deg) scale(1.2);
+}
+
+.btn-animated::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-animated:active::before {
+    width: 300px;
+    height: 300px;
+}
+
 /* Header Actions */
 .header-actions {
     display: flex;
@@ -364,6 +402,35 @@
     flex-wrap: wrap;
 }
 
+.order-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-icon i {
+    font-size: 0.9rem;
+}
+
 .order-number {
     display: flex;
     align-items: center;
@@ -612,7 +679,8 @@
     justify-content: flex-end;
 }
 
-.btn-success {
+.btn-success,
+.btn-deliver {
     background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     color: white;
     border: none;
@@ -624,11 +692,32 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    position: relative;
+    overflow: hidden;
 }
 
-.btn-success:hover {
+.btn-success:hover,
+.btn-deliver:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);
+}
+
+.btn-deliver::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-deliver:active::before {
+    width: 300px;
+    height: 300px;
 }
 
 /* Empty State */

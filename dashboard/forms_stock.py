@@ -1,4 +1,4 @@
-"""
+""" 
 Stock Management Forms
 """
 from django import forms
@@ -7,7 +7,7 @@ from .models import CementProduct
 
 class StockUpdateForm(forms.ModelForm):
     """
-    Form for updating stock quantities
+    Form for updating stock quantities - No strict validations
     """
     adjustment_type = forms.ChoiceField(
         choices=[
@@ -16,16 +16,15 @@ class StockUpdateForm(forms.ModelForm):
             ('set', 'Set Stock (Manual Adjustment)')
         ],
         widget=forms.Select(attrs={
-            'class': 'form-control',
+            'class': 'form-input',
             'id': 'adjustmentType'
         }),
         initial='add'
     )
     
     adjustment_quantity = forms.IntegerField(
-        min_value=1,
         widget=forms.NumberInput(attrs={
-            'class': 'form-control',
+            'class': 'form-input',
             'placeholder': 'Enter quantity',
             'id': 'adjustmentQuantity'
         }),
@@ -35,7 +34,7 @@ class StockUpdateForm(forms.ModelForm):
     adjustment_reason = forms.CharField(
         required=False,
         widget=forms.Textarea(attrs={
-            'class': 'form-control',
+            'class': 'form-input',
             'placeholder': 'Reason for stock adjustment (optional)',
             'rows': 3
         }),
@@ -47,25 +46,24 @@ class StockUpdateForm(forms.ModelForm):
         fields = ['name', 'grade', 'weight_per_bag', 'price_per_bag', 'reorder_level']
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'placeholder': 'Product Name',
                 'readonly': 'readonly'
             }),
             'grade': forms.Select(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'disabled': 'disabled'
             }),
             'weight_per_bag': forms.NumberInput(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'readonly': 'readonly'
             }),
             'price_per_bag': forms.NumberInput(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'step': '0.01'
             }),
             'reorder_level': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '0'
+                'class': 'form-input'
             })
         }
         labels = {
@@ -75,40 +73,14 @@ class StockUpdateForm(forms.ModelForm):
             'price_per_bag': 'Price per Bag (₹)',
             'reorder_level': 'Reorder Level (Bags)'
         }
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and self.instance.pk:
-            # Make grade field show current value but disabled
-            self.fields['grade'].widget.attrs.pop('disabled', None)
-            self.fields['grade'].widget.attrs['readonly'] = 'readonly'
-    
-    def clean_adjustment_quantity(self):
-        """
-        Validate adjustment quantity
-        """
-        quantity = self.cleaned_data.get('adjustment_quantity')
-        adjustment_type = self.data.get('adjustment_type')
-        
-        if adjustment_type == 'remove':
-            current_stock = self.instance.stock_quantity if self.instance else 0
-            if quantity > current_stock:
-                raise forms.ValidationError(
-                    f'Cannot remove {quantity} bags. Only {current_stock} bags available in stock.'
-                )
-        
-        return quantity
-
-
 class ProductCreateForm(forms.ModelForm):
     """
-    Form for creating new cement products
+    Form for creating new cement products - No validations
     """
     initial_stock = forms.IntegerField(
-        min_value=0,
         initial=0,
         widget=forms.NumberInput(attrs={
-            'class': 'form-control',
+            'class': 'form-input',
             'placeholder': 'Initial stock quantity'
         }),
         label='Initial Stock Quantity',
@@ -120,24 +92,24 @@ class ProductCreateForm(forms.ModelForm):
         fields = ['name', 'grade', 'weight_per_bag', 'price_per_bag', 'reorder_level']
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'placeholder': 'e.g., UltraTech Cement'
             }),
             'grade': forms.Select(attrs={
-                'class': 'form-control'
+                'class': 'form-input'
             }),
             'weight_per_bag': forms.NumberInput(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'step': '0.01',
                 'value': '50.00'
             }),
             'price_per_bag': forms.NumberInput(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'step': '0.01',
                 'placeholder': 'Price per bag'
             }),
             'reorder_level': forms.NumberInput(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'value': '100'
             })
         }

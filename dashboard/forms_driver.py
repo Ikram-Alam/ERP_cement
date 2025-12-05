@@ -1,4 +1,4 @@
-"""
+""" 
 Driver Form for CRUD operations
 """
 from django import forms
@@ -7,7 +7,7 @@ from .models import Driver
 
 class DriverForm(forms.ModelForm):
     """
-    Form for creating and updating drivers
+    Form for creating and updating drivers - All validations removed
     """
     
     class Meta:
@@ -23,20 +23,20 @@ class DriverForm(forms.ModelForm):
         ]
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'placeholder': 'Enter driver full name'
             }),
             'phone': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': '+91XXXXXXXXXX'
+                'class': 'form-input',
+                'placeholder': 'Enter phone number'
             }),
             'license_number': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'DL-XXXXXXXXX'
+                'class': 'form-input',
+                'placeholder': 'Enter license number'
             }),
             'vehicle_number': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'XX-00-XX-0000'
+                'class': 'form-input',
+                'placeholder': 'Enter vehicle number'
             }),
             'vehicle_type': forms.Select(
                 choices=[
@@ -45,15 +45,14 @@ class DriverForm(forms.ModelForm):
                     ('Trailer', 'Trailer'),
                     ('Tanker', 'Tanker'),
                 ],
-                attrs={'class': 'form-control'}
+                attrs={'class': 'form-input'}
             ),
             'vehicle_capacity': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter capacity in bags',
-                'min': '1'
+                'class': 'form-input',
+                'placeholder': 'Enter capacity in bags'
             }),
             'is_active': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
+                'class': 'toggle-checkbox'
             })
         }
         labels = {
@@ -62,37 +61,6 @@ class DriverForm(forms.ModelForm):
             'license_number': 'License Number',
             'vehicle_number': 'Vehicle Number',
             'vehicle_type': 'Vehicle Type',
-            'vehicle_capacity': 'Vehicle Capacity (Bags)',
+            'vehicle_capacity': 'Vehicle Capacity',
             'is_active': 'Active Status'
         }
-        help_texts = {
-            'phone': 'Format: +91XXXXXXXXXX',
-            'license_number': 'Enter valid driving license number',
-            'vehicle_capacity': 'Maximum bags the vehicle can carry',
-            'is_active': 'Uncheck to mark driver as unavailable'
-        }
-    
-    def clean_license_number(self):
-        """
-        Validate license number format and uniqueness
-        """
-        license_number = self.cleaned_data.get('license_number')
-        
-        # Check uniqueness (exclude current instance if updating)
-        qs = Driver.objects.filter(license_number=license_number)
-        if self.instance.pk:
-            qs = qs.exclude(pk=self.instance.pk)
-        
-        if qs.exists():
-            raise forms.ValidationError('This license number is already registered.')
-        
-        return license_number
-    
-    def clean_vehicle_capacity(self):
-        """
-        Validate vehicle capacity is positive
-        """
-        capacity = self.cleaned_data.get('vehicle_capacity')
-        if capacity and capacity <= 0:
-            raise forms.ValidationError('Vehicle capacity must be greater than 0.')
-        return capacity

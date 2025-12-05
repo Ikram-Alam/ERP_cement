@@ -1,0 +1,261 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Order {{ order.order_number }} - {{ app_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .order-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .detail-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+    }
+
+    .detail-header h1 {
+        margin: 0 0 1rem 0;
+        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+        text-decoration: none;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+        transition: opacity 0.3s;
+    }
+
+    .back-link:hover {
+        opacity: 1;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .detail-card h3 {
+        margin: 0 0 1.5rem 0;
+        color: #1a1a2e;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #f1f3f5;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .info-label {
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .info-value {
+        color: #1a1a2e;
+        font-weight: 600;
+    }
+
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    .items-table thead {
+        background: #f8f9fa;
+    }
+
+    .items-table th,
+    .items-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+    <div class="detail-header">
+        <a href="{% url 'dashboard:pending_orders' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Pending Orders
+        </a>
+        <h1>
+            <i class="fas fa-file-invoice"></i>
+            Order {{ order.order_number }}
+        </h1>
+        <p>Order placed on {{ order.order_date|date:"F d, Y at h:i A" }}</p>
+    </div>
+
+    <div class="detail-grid">
+        <div>
+            <div class="detail-card">
+                <h3><i class="fas fa-info-circle"></i> Order Details</h3>
+                <div class="info-row">
+                    <span class="info-label">Order Number</span>
+                    <span class="info-value">{{ order.order_number }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value">
+                        <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Order Date</span>
+                    <span class="info-value">{{ order.order_date|date:"F d, Y" }}</span>
+                </div>
+                {% if order.delivery_date %}
+                <div class="info-row">
+                    <span class="info-label">Delivery Date</span>
+                    <span class="info-value">{{ order.delivery_date|date:"F d, Y" }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="detail-card" style="margin-top: 2rem;">
+                <h3><i class="fas fa-boxes"></i> Order Items</h3>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td>{{ item.product.name }} - {{ item.product.get_grade_display }}</td>
+                            <td>{{ item.quantity }} bags</td>
+                            <td>₹{{ item.unit_price }}</td>
+                            <td>₹{{ item.total_price|floatformat:0 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div>
+            <div class="detail-card">
+                <h3><i class="fas fa-user"></i> Vendor Details</h3>
+                <div class="info-row">
+                    <span class="info-label">Name</span>
+                    <span class="info-value">{{ order.vendor.name }}</span>
+                </div>
+                {% if order.vendor.company_name %}
+                <div class="info-row">
+                    <span class="info-label">Company</span>
+                    <span class="info-value">{{ order.vendor.company_name }}</span>
+                </div>
+                {% endif %}
+                <div class="info-row">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">{{ order.vendor.phone }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Delivery Address</span>
+                    <span class="info-value">{{ order.delivery_address }}</span>
+                </div>
+            </div>
+
+            {% if order.driver %}
+            <div class="detail-card" style="margin-top: 2rem;">
+                <h3><i class="fas fa-user-tie"></i> Driver Details</h3>
+                <div class="info-row">
+                    <span class="info-label">Name</span>
+                    <span class="info-value">{{ order.driver.name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">{{ order.driver.phone }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Vehicle</span>
+                    <span class="info-value">{{ order.driver.vehicle_number }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="detail-card" style="margin-top: 2rem;">
+                <h3><i class="fas fa-rupee-sign"></i> Payment Summary</h3>
+                <div class="info-row">
+                    <span class="info-label">Subtotal</span>
+                    <span class="info-value">₹{{ order.subtotal|floatformat:0 }}</span>
+                </div>
+                {% if order.discount_amount > 0 %}
+                <div class="info-row">
+                    <span class="info-label">Discount ({{ order.discount_percent }}%)</span>
+                    <span class="info-value" style="color: #28a745;">-₹{{ order.discount_amount|floatformat:0 }}</span>
+                </div>
+                {% endif %}
+                <div class="info-row">
+                    <span class="info-label">Tax ({{ order.tax_percent }}%)</span>
+                    <span class="info-value">₹{{ order.tax_amount|floatformat:0 }}</span>
+                </div>
+                <div class="info-row" style="border-top: 2px solid #667eea; margin-top: 0.5rem; padding-top: 1rem;">
+                    <span class="info-label" style="font-size: 1.1rem; font-weight: 700;">Total Amount</span>
+                    <span class="info-value" style="font-size: 1.3rem; color: #667eea;">₹{{ order.total_amount|floatformat:0 }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Paid Amount</span>
+                    <span class="info-value" style="color: #28a745;">₹{{ order.paid_amount|floatformat:0 }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Balance</span>
+                    <span class="info-value" style="color: #dc3545;">₹{{ order.balance_amount|floatformat:0 }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Payment Status</span>
+                    <span class="info-value">
+                        <span class="status-badge payment-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

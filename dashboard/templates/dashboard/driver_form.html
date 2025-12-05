@@ -5,218 +5,676 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/driver-pages.css' %}">
+<style>
+    /* Modern Form Styling */
+    .modern-form-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+    }
+
+    .form-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .form-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.95;
+        font-size: 1.1rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+        text-decoration: none;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+        transition: opacity 0.3s;
+    }
+
+    .back-link:hover {
+        opacity: 1;
+    }
+
+    /* Progress Tracker */
+    .progress-tracker {
+        display: flex;
+        justify-content: space-between;
+        margin: 2rem 0;
+        padding: 0 1rem;
+    }
+
+    .progress-step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .progress-step::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        width: 100%;
+        height: 3px;
+        background: #e9ecef;
+        z-index: -1;
+    }
+
+    .progress-step:first-child::before {
+        display: none;
+    }
+
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        color: #6c757d;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .progress-step.active .step-circle {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .step-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .progress-step.active .step-label {
+        color: #667eea;
+        font-weight: 700;
+    }
+
+    /* Form Sections */
+    .form-section-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .form-section-card:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #f1f3f5;
+    }
+
+    .section-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .section-title h3 {
+        margin: 0;
+        color: #1a1a2e;
+        font-size: 1.3rem;
+    }
+
+    .section-title p {
+        margin: 0.25rem 0 0 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    /* Input Styling */
+    .input-wrapper {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #667eea;
+        font-size: 1.1rem;
+        z-index: 1;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem 0.875rem 3rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-input:hover {
+        border-color: #cbd5e0;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #495057;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .required-star {
+        color: #e74c3c;
+        margin-left: 0.25rem;
+    }
+
+    /* Toggle Switch */
+    .toggle-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        border-radius: 12px;
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 30px;
+    }
+
+    .toggle-checkbox {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 30px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+    }
+
+    .toggle-checkbox:checked + .toggle-slider {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .toggle-checkbox:checked + .toggle-slider:before {
+        transform: translateX(30px);
+    }
+
+    .toggle-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 1rem;
+    }
+
+    .toggle-description {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Form Grid */
+    .input-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .input-grid .full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* Capacity Display */
+    .capacity-display {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        color: white;
+        text-align: center;
+    }
+
+    .capacity-display h4 {
+        margin: 0 0 0.5rem 0;
+        font-size: 0.9rem;
+        opacity: 0.95;
+    }
+
+    .capacity-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .capacity-unit {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    /* Action Buttons */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.875rem 2rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    /* Error Styling */
+    .error-message {
+        color: #e74c3c;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .alert-danger {
+        background: #fee;
+        border: 2px solid #fcc;
+        color: #c33;
+    }
+
+    .alert i {
+        font-size: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .input-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .progress-tracker {
+            flex-wrap: wrap;
+        }
+
+        .form-header h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <div>
+<div class="modern-form-container">
+    <div class="form-header">
         <a href="{% url 'dashboard:driver_list' %}" class="back-link">
             <i class="fas fa-arrow-left"></i> Back to Drivers
         </a>
         <h1>
             <i class="fas fa-user-tie"></i>
             {% if form.instance.pk %}
-            Edit Driver
+            Edit Driver Information
             {% else %}
             Add New Driver
             {% endif %}
         </h1>
+        <p>Complete the form below to {% if form.instance.pk %}update{% else %}register{% endif %} driver details</p>
     </div>
+
+    <!-- Progress Tracker -->
+    <div class="progress-tracker">
+        <div class="progress-step active" data-section="personal">
+            <div class="step-circle">1</div>
+            <div class="step-label">Personal Info</div>
+        </div>
+        <div class="progress-step" data-section="license">
+            <div class="step-circle">2</div>
+            <div class="step-label">License</div>
+        </div>
+        <div class="progress-step" data-section="vehicle">
+            <div class="step-circle">3</div>
+            <div class="step-label">Vehicle Info</div>
+        </div>
+        <div class="progress-step" data-section="status">
+            <div class="step-circle">4</div>
+            <div class="step-label">Status</div>
+        </div>
+    </div>
+
+    <!-- Error Messages -->
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+            <strong>Please correct the following errors:</strong>
+            <ul style="margin: 0.5rem 0 0 0; padding-left: 1.5rem;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="post" id="driverForm" novalidate>
+        {% csrf_token %}
+
+        <!-- Personal Information -->
+        <div class="form-section-card" id="section-personal">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="section-title">
+                    <h3>Personal Information</h3>
+                    <p>Basic details about the driver</p>
+                </div>
+            </div>
+
+            <div class="input-grid">
+                <div class="input-wrapper">
+                    <label for="{{ form.name.id_for_label }}">
+                        {{ form.name.label }}<span class="required-star">*</span>
+                    </label>
+                    <i class="fas fa-user input-icon"></i>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <span class="error-message">{{ form.name.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="input-wrapper">
+                    <label for="{{ form.phone.id_for_label }}">
+                        {{ form.phone.label }}<span class="required-star">*</span>
+                    </label>
+                    <i class="fas fa-phone input-icon"></i>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <span class="error-message">{{ form.phone.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- License Information -->
+        <div class="form-section-card" id="section-license">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <div class="section-title">
+                    <h3>License Information</h3>
+                    <p>Driver's license details</p>
+                </div>
+            </div>
+
+            <div class="input-grid">
+                <div class="input-wrapper full-width">
+                    <label for="{{ form.license_number.id_for_label }}">
+                        {{ form.license_number.label }}<span class="required-star">*</span>
+                    </label>
+                    <i class="fas fa-id-card-alt input-icon"></i>
+                    {{ form.license_number }}
+                    {% if form.license_number.errors %}
+                        <span class="error-message">{{ form.license_number.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Vehicle Information -->
+        <div class="form-section-card" id="section-vehicle">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="section-title">
+                    <h3>Vehicle Information</h3>
+                    <p>Details about the assigned vehicle</p>
+                </div>
+            </div>
+
+            <div class="input-grid">
+                <div class="input-wrapper">
+                    <label for="{{ form.vehicle_number.id_for_label }}">
+                        {{ form.vehicle_number.label }}<span class="required-star">*</span>
+                    </label>
+                    <i class="fas fa-hashtag input-icon"></i>
+                    {{ form.vehicle_number }}
+                    {% if form.vehicle_number.errors %}
+                        <span class="error-message">{{ form.vehicle_number.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="input-wrapper">
+                    <label for="{{ form.vehicle_type.id_for_label }}">
+                        {{ form.vehicle_type.label }}<span class="required-star">*</span>
+                    </label>
+                    <i class="fas fa-truck-moving input-icon"></i>
+                    {{ form.vehicle_type }}
+                    {% if form.vehicle_type.errors %}
+                        <span class="error-message">{{ form.vehicle_type.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="input-wrapper">
+                    <label for="{{ form.vehicle_capacity.id_for_label }}">
+                        {{ form.vehicle_capacity.label }}<span class="required-star">*</span>
+                    </label>
+                    <i class="fas fa-box input-icon"></i>
+                    {{ form.vehicle_capacity }}
+                    {% if form.vehicle_capacity.errors %}
+                        <span class="error-message">{{ form.vehicle_capacity.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="capacity-display">
+                    <h4><i class="fas fa-boxes"></i> Vehicle Capacity</h4>
+                    <p class="capacity-value">
+                        <span id="capacityValue">0</span>
+                        <span class="capacity-unit">bags</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="form-section-card" id="section-status">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-toggle-on"></i>
+                </div>
+                <div class="section-title">
+                    <h3>Availability Status</h3>
+                    <p>Set driver availability for assignments</p>
+                </div>
+            </div>
+
+            <div class="toggle-wrapper">
+                <label class="toggle-switch">
+                    {{ form.is_active }}
+                    <span class="toggle-slider"></span>
+                </label>
+                <div>
+                    <div class="toggle-label">{{ form.is_active.label }}</div>
+                    <div class="toggle-description">Toggle to set driver as active or inactive</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <a href="{% url 'dashboard:driver_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                {% if form.instance.pk %}Update Driver{% else %}Add Driver{% endif %}
+            </button>
+        </div>
+    </form>
 </div>
 
-<div class="form-container">
-    <div class="form-card">
-        {% if form.errors %}
-        <div class="alert alert-danger">
-            <i class="fas fa-exclamation-triangle"></i>
-            <div>
-                <strong>Please correct the following errors:</strong>
-                <ul>
-                    {% for field, errors in form.errors.items %}
-                        {% for error in errors %}
-                        <li>{{ field }}: {{ error }}</li>
-                        {% endfor %}
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        {% endif %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update capacity display
+    const capacityInput = document.getElementById('{{ form.vehicle_capacity.id_for_label }}');
+    const capacityValue = document.getElementById('capacityValue');
+
+    function updateCapacity() {
+        const value = capacityInput.value || 0;
+        capacityValue.textContent = value;
+    }
+
+    if (capacityInput) {
+        capacityInput.addEventListener('input', updateCapacity);
+        updateCapacity(); // Initial update
+    }
+
+    // Progress tracker interaction
+    const progressSteps = document.querySelectorAll('.progress-step');
+    const sections = document.querySelectorAll('.form-section-card');
+
+    progressSteps.forEach((step, index) => {
+        step.addEventListener('click', () => {
+            sections[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    // Update active step on scroll
+    window.addEventListener('scroll', () => {
+        let current = '';
         
-        <form method="post" id="driverForm" novalidate>
-            {% csrf_token %}
-            
-            <!-- Personal Information Section -->
-            <div class="form-section">
-                <h3>
-                    <i class="fas fa-user"></i>
-                    Personal Information
-                </h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="{{ form.name.id_for_label }}">
-                            {{ form.name.label }}
-                            <span class="required">*</span>
-                        </label>
-                        {{ form.name }}
-                        {% if form.name.errors %}
-                        <span class="error-message">{{ form.name.errors.0 }}</span>
-                        {% endif %}
-                        {% if form.name.help_text %}
-                        <small class="help-text">{{ form.name.help_text }}</small>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.phone.id_for_label }}">
-                            {{ form.phone.label }}
-                            <span class="required">*</span>
-                        </label>
-                        {{ form.phone }}
-                        {% if form.phone.errors %}
-                        <span class="error-message">{{ form.phone.errors.0 }}</span>
-                        {% endif %}
-                        {% if form.phone.help_text %}
-                        <small class="help-text">{{ form.phone.help_text }}</small>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            
-            <!-- License Information Section -->
-            <div class="form-section">
-                <h3>
-                    <i class="fas fa-id-card"></i>
-                    License Information
-                </h3>
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="{{ form.license_number.id_for_label }}">
-                            {{ form.license_number.label }}
-                            <span class="required">*</span>
-                        </label>
-                        {{ form.license_number }}
-                        {% if form.license_number.errors %}
-                        <span class="error-message">{{ form.license_number.errors.0 }}</span>
-                        {% endif %}
-                        {% if form.license_number.help_text %}
-                        <small class="help-text">{{ form.license_number.help_text }}</small>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Vehicle Information Section -->
-            <div class="form-section">
-                <h3>
-                    <i class="fas fa-truck"></i>
-                    Vehicle Information
-                </h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="{{ form.vehicle_number.id_for_label }}">
-                            {{ form.vehicle_number.label }}
-                            <span class="required">*</span>
-                        </label>
-                        {{ form.vehicle_number }}
-                        {% if form.vehicle_number.errors %}
-                        <span class="error-message">{{ form.vehicle_number.errors.0 }}</span>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.vehicle_type.id_for_label }}">
-                            {{ form.vehicle_type.label }}
-                            <span class="required">*</span>
-                        </label>
-                        {{ form.vehicle_type }}
-                        {% if form.vehicle_type.errors %}
-                        <span class="error-message">{{ form.vehicle_type.errors.0 }}</span>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group full-width">
-                        <label for="{{ form.vehicle_capacity.id_for_label }}">
-                            {{ form.vehicle_capacity.label }}
-                            <span class="required">*</span>
-                        </label>
-                        {{ form.vehicle_capacity }}
-                        {% if form.vehicle_capacity.errors %}
-                        <span class="error-message">{{ form.vehicle_capacity.errors.0 }}</span>
-                        {% endif %}
-                        {% if form.vehicle_capacity.help_text %}
-                        <small class="help-text">{{ form.vehicle_capacity.help_text }}</small>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Availability Status Section -->
-            <div class="form-section">
-                <h3>
-                    <i class="fas fa-toggle-on"></i>
-                    Availability Status
-                </h3>
-                <div class="form-group-checkbox">
-                    <label class="checkbox-label">
-                        {{ form.is_active }}
-                        <span>{{ form.is_active.label }}</span>
-                    </label>
-                    {% if form.is_active.help_text %}
-                    <small class="help-text">{{ form.is_active.help_text }}</small>
-                    {% endif %}
-                    {% if form.is_active.errors %}
-                    <span class="error-message">{{ form.is_active.errors.0 }}</span>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Form Actions -->
-            <div class="form-actions">
-                <a href="{% url 'dashboard:driver_list' %}" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Cancel
-                </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i>
-                    {% if form.instance.pk %}
-                    Update Driver
-                    {% else %}
-                    Add Driver
-                    {% endif %}
-                </button>
-            </div>
-        </form>
-    </div>
-    
-    <!-- Info Card -->
-    <div class="info-card">
-        <h3><i class="fas fa-info-circle"></i> Driver Information</h3>
-        <ul>
-            <li>
-                <i class="fas fa-check"></i>
-                All fields marked with <span class="required">*</span> are required
-            </li>
-            <li>
-                <i class="fas fa-check"></i>
-                License number must be unique in the system
-            </li>
-            <li>
-                <i class="fas fa-check"></i>
-                Phone number format: +91XXXXXXXXXX
-            </li>
-            <li>
-                <i class="fas fa-check"></i>
-                Vehicle capacity represents maximum bags that can be carried
-            </li>
-            <li>
-                <i class="fas fa-check"></i>
-                Inactive drivers won't be available for order assignments
-            </li>
-        </ul>
+        sections.forEach((section) => {
+            const sectionTop = section.offsetTop - 100;
+            if (pageYOffset >= sectionTop) {
+                current = section.getAttribute('id').replace('section-', '');
+            }
+        });
+
+        progressSteps.forEach((step) => {
+            step.classList.remove('active');
+            if (step.getAttribute('data-section') === current) {
+                step.classList.add('active');
+            }
+        });
+    });
+
+    // Form validation
+    const form = document.getElementById('driverForm');
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        const requiredFields = form.querySelectorAll('[required]');
         
-        <div class="quick-tips">
-            <h4><i class="fas fa-lightbulb"></i> Quick Tips</h4>
-            <p>Ensure all driver information is accurate for efficient delivery tracking and management.</p>
-        </div>
-    </div>
-</div>
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.style.borderColor = '#e74c3c';
+            } else {
+                field.style.borderColor = '#e9ecef';
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields');
+        }
+    });
+});
+</script>
 {% endblock %}

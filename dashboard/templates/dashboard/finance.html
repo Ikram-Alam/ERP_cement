@@ -16,7 +16,18 @@
             <p class="subtitle">Revenue tracking, expense analysis, and financial insights</p>
         </div>
         
-        <!-- Date Range Filter -->
+        <div class="header-actions">
+            <button onclick="window.print()" class="btn btn-secondary btn-animated">
+                <i class="fas fa-print"></i> Print Report
+            </button>
+            <button onclick="exportToPDF()" class="btn btn-primary btn-animated">
+                <i class="fas fa-file-pdf"></i> Export PDF
+            </button>
+        </div>
+    </div>
+    
+    <!-- Date Range Filter -->
+    <div class="filter-section">
         <form method="get" class="filter-form">
             <div class="date-filter">
                 <label>From:</label>
@@ -25,7 +36,7 @@
                 <label>To:</label>
                 <input type="date" name="date_to" value="{{ date_to }}" required>
                 
-                <button type="submit" class="btn-filter">
+                <button type="submit" class="btn-filter btn-animated">
                     <i class="fas fa-search"></i> Apply
                 </button>
                 
@@ -107,20 +118,22 @@
 
     <!-- Charts Row 1 -->
     <div class="charts-row">
-        <div class="chart-container">
+        <div class="chart-container chart-loading" data-chart="monthly">
             <div class="chart-header">
                 <h2><i class="fas fa-chart-line"></i> Revenue Trend (Last 6 Months)</h2>
             </div>
             <div class="chart-body">
+                <div class="skeleton-loader"></div>
                 <canvas id="monthlyRevenueChart"></canvas>
             </div>
         </div>
 
-        <div class="chart-container">
+        <div class="chart-container chart-loading" data-chart="daily">
             <div class="chart-header">
                 <h2><i class="fas fa-chart-area"></i> Daily Revenue (Selected Period)</h2>
             </div>
             <div class="chart-body">
+                <div class="skeleton-loader"></div>
                 <canvas id="dailyRevenueChart"></canvas>
             </div>
         </div>
@@ -128,20 +141,22 @@
 
     <!-- Charts Row 2 -->
     <div class="charts-row">
-        <div class="chart-container small">
+        <div class="chart-container small chart-loading" data-chart="status">
             <div class="chart-header">
                 <h2><i class="fas fa-chart-pie"></i> Order Status Breakdown</h2>
             </div>
             <div class="chart-body">
+                <div class="skeleton-loader"></div>
                 <canvas id="orderStatusChart"></canvas>
             </div>
         </div>
 
-        <div class="chart-container small">
+        <div class="chart-container small chart-loading" data-chart="payment">
             <div class="chart-header">
                 <h2><i class="fas fa-chart-pie"></i> Payment Status Distribution</h2>
             </div>
             <div class="chart-body">
+                <div class="skeleton-loader"></div>
                 <canvas id="paymentStatusChart"></canvas>
             </div>
         </div>
@@ -268,25 +283,41 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
     // Data from Django context
     const monthlyData = {{ monthly_data_json|safe }};
     const statusBreakdown = {{ status_breakdown_json|safe }};
     const paymentBreakdown = {{ payment_breakdown_json|safe }};
     const dailyRevenue = {{ daily_revenue_json|safe }};
-
-    // Color schemes
-    const colors = {
-        primary: '#4f46e5',
-        success: '#10b981',
-        warning: '#f59e0b',
-        danger: '#ef4444',
-        info: '#3b82f6',
-        purple: '#8b5cf6',
-    };
+    
+    // Export to PDF function
+    function exportToPDF() {
+        const element = document.querySelector('.finance-page');
+        const opt = {
+            margin: 10,
+            filename: 'finance-report-{{ date_from }}-to-{{ date_to }}.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+    
+    // Remove loading state from chart containers
+    function removeLoadingState(chartName) {
+        const container = document.querySelector(`[data-chart="${chartName}"]`);
+        if (container) {
+            container.classList.remove('chart-loading');
+        }
+    }
 
     // Monthly Revenue Chart
     const monthlyCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+    const monthlyGradient = monthlyCtx.createLinearGradient(0, 0, 0, 400);
+    monthlyGradient.addColorStop(0, 'rgba(102, 126, 234, 0.5)');
+    monthlyGradient.addColorStop(1, 'rgba(118, 75, 162, 0.1)');
+    
     new Chart(monthlyCtx, {
         type: 'line',
         data: {
@@ -294,41 +325,62 @@
             datasets: [{
                 label: 'Revenue (₹)',
                 data: monthlyData.map(d => d.revenue),
-                borderColor: colors.primary,
-                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                borderColor: '#667eea',
+                backgroundColor: monthlyGradient,
                 borderWidth: 3,
                 fill: true,
                 tension: 0.4,
-                pointRadius: 5,
-                pointBackgroundColor: colors.primary,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#667eea',
                 pointBorderColor: '#fff',
-                pointBorderWidth: 2,
+                pointBorderWidth: 3,
+                pointHoverBackgroundColor: '#764ba2',
+                pointHoverBorderWidth: 3,
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart',
+                onComplete: () => removeLoadingState('monthly')
+            },
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
-                    titleFont: { size: 14 },
-                    bodyFont: { size: 13 },
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    padding: 16,
+                    titleFont: { size: 15, weight: 'bold' },
+                    bodyFont: { size: 14 },
+                    borderColor: '#667eea',
+                    borderWidth: 2,
+                    displayColors: false,
                     callbacks: {
-                        label: (context) => `Revenue: ₹${context.parsed.y.toLocaleString('en-IN', {minimumFractionDigits: 2})}`
+                        title: (items) => items[0].label,
+                        label: (context) => `Revenue: ₹${context.parsed.y.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`
                     }
                 }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             scales: {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        font: { size: 12 },
                         callback: (value) => '₹' + value.toLocaleString('en-IN')
                     },
-                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    grid: { 
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    }
                 },
                 x: {
+                    ticks: { font: { size: 12 } },
                     grid: { display: false }
                 }
             }
@@ -340,43 +392,76 @@
     new Chart(dailyCtx, {
         type: 'bar',
         data: {
-            labels: dailyRevenue.map(d => d.date),
+            labels: dailyRevenue.map(d => {
+                const date = new Date(d.date);
+                return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+            }),
             datasets: [{
                 label: 'Daily Revenue (₹)',
                 data: dailyRevenue.map(d => d.revenue),
-                backgroundColor: 'rgba(16, 185, 129, 0.7)',
-                borderColor: colors.success,
+                backgroundColor: dailyRevenue.map((d, i) => {
+                    const ctx = dailyCtx;
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                    gradient.addColorStop(0, 'rgba(17, 153, 142, 0.8)');
+                    gradient.addColorStop(1, 'rgba(56, 239, 125, 0.6)');
+                    return gradient;
+                }),
+                borderColor: '#11998e',
                 borderWidth: 2,
-                borderRadius: 6,
+                borderRadius: 8,
+                hoverBackgroundColor: '#38ef7d',
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                duration: 1500,
+                easing: 'easeOutBounce',
+                onComplete: () => removeLoadingState('daily')
+            },
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    padding: 16,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    borderColor: '#11998e',
+                    borderWidth: 2,
+                    displayColors: false,
                     callbacks: {
-                        label: (context) => `Revenue: ₹${context.parsed.y.toLocaleString('en-IN', {minimumFractionDigits: 2})}`
+                        title: (items) => {
+                            const date = new Date(dailyRevenue[items[0].dataIndex].date);
+                            return date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                        },
+                        label: (context) => `Revenue: ₹${context.parsed.y.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`
                     }
                 }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false,
             },
             scales: {
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        font: { size: 12 },
                         callback: (value) => '₹' + value.toLocaleString('en-IN')
                     },
-                    grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    grid: { 
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    }
                 },
                 x: {
-                    grid: { display: false },
-                    ticks: {
+                    ticks: { 
+                        font: { size: 11 },
                         maxRotation: 45,
                         minRotation: 45
-                    }
+                    },
+                    grid: { display: false }
                 }
             }
         }
@@ -391,32 +476,55 @@
             datasets: [{
                 data: statusBreakdown.map(s => s.count),
                 backgroundColor: [
-                    colors.primary,
-                    colors.success,
-                    colors.warning,
-                    colors.danger,
-                    colors.info,
-                    colors.purple,
+                    '#667eea',
+                    '#11998e',
+                    '#fa709a',
+                    '#f093fb',
+                    '#4facfe',
+                    '#764ba2',
                     '#ec4899',
                     '#14b8a6'
                 ],
-                borderWidth: 2,
+                borderWidth: 3,
                 borderColor: '#fff',
+                hoverOffset: 15,
+                hoverBorderWidth: 4,
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                animateRotate: true,
+                animateScale: true,
+                duration: 2000,
+                easing: 'easeInOutQuart',
+                onComplete: () => removeLoadingState('status')
+            },
             plugins: {
                 legend: {
                     position: 'right',
-                    labels: { padding: 15, font: { size: 12 } }
+                    labels: { 
+                        padding: 15, 
+                        font: { size: 13 },
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    padding: 16,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    borderWidth: 2,
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    displayColors: true,
                     callbacks: {
-                        label: (context) => `${context.label}: ${context.parsed} orders`
+                        label: (context) => {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return ` ${context.label}: ${context.parsed} orders (${percentage}%)`;
+                        }
                     }
                 }
             }
@@ -432,29 +540,52 @@
             datasets: [{
                 data: paymentBreakdown.map(p => p.amount),
                 backgroundColor: [
-                    colors.success,
-                    colors.warning,
-                    colors.danger,
-                    colors.info,
-                    colors.purple
+                    '#11998e',
+                    '#fee140',
+                    '#f5576c',
+                    '#4facfe',
+                    '#764ba2'
                 ],
-                borderWidth: 2,
+                borderWidth: 3,
                 borderColor: '#fff',
+                hoverOffset: 15,
+                hoverBorderWidth: 4,
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                animateRotate: true,
+                animateScale: true,
+                duration: 2000,
+                easing: 'easeInOutQuart',
+                onComplete: () => removeLoadingState('payment')
+            },
             plugins: {
                 legend: {
                     position: 'right',
-                    labels: { padding: 15, font: { size: 12 } }
+                    labels: { 
+                        padding: 15, 
+                        font: { size: 13 },
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    padding: 16,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    borderWidth: 2,
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    displayColors: true,
                     callbacks: {
-                        label: (context) => `${context.label}: ₹${context.parsed.toLocaleString('en-IN', {minimumFractionDigits: 2})}`
+                        label: (context) => {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return ` ${context.label}: ₹${context.parsed.toLocaleString('en-IN', {minimumFractionDigits: 2})} (${percentage}%)`;
+                        }
                     }
                 }
             }

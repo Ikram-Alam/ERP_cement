@@ -26,10 +26,7 @@ class Vendor(BaseModel):
     name = models.CharField(max_length=200)
     company_name = models.CharField(max_length=200, blank=True)
     email = models.EmailField(blank=True)
-    phone = models.CharField(
-        max_length=15,
-        validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Enter a valid phone number")]
-    )
+    phone = models.CharField(max_length=20)
     address = models.TextField()
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
@@ -56,10 +53,7 @@ class Driver(BaseModel):
     Driver model for delivery personnel
     """
     name = models.CharField(max_length=200)
-    phone = models.CharField(
-        max_length=15,
-        validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$')]
-    )
+    phone = models.CharField(max_length=20)
     license_number = models.CharField(max_length=50, unique=True)
     vehicle_number = models.CharField(max_length=20)
     vehicle_type = models.CharField(max_length=50, default='Truck')

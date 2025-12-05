@@ -3,7 +3,7 @@ URL configuration for dashboard app
 """
 from django.urls import path
 from .views import (
-    DashboardHomeView, OrderCreateView,
+    DashboardHomeView, OrderCreateView, OrderDetailView,
     VendorListView, VendorCreateView, VendorUpdateView, VendorDeleteView,
     DriverListView, DriverCreateView, DriverUpdateView, DriverDeleteView,
     StockListView, StockUpdateView, ProductCreateView,
@@ -42,6 +42,7 @@ urlpatterns = [
     
     # Pending Orders URLs
     path('orders/pending/', PendingOrderListView.as_view(), name='pending_orders'),
+    path('orders/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
     path('orders/<int:pk>/status/', OrderStatusUpdateView.as_view(), name='order_status_update'),
     
     # Daily Dispatch URLs

@@ -5,285 +5,883 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/vendor-pages.css' %}">
+<style>
+.vendor-form-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.form-header {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    color: white;
+    padding: 32px;
+    border-radius: 16px 16px 0 0;
+    margin-bottom: 0;
+}
+
+.form-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.form-header p {
+    font-size: 15px;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.form-body {
+    background: white;
+    padding: 40px;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.form-progress {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.form-progress::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e2e8f0;
+    z-index: 0;
+}
+
+.progress-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.progress-step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #e2e8f0;
+    margin: 0 auto 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #94a3b8;
+    transition: all 0.3s ease;
+}
+
+.progress-step.active .progress-step-circle {
+    border-color: #2563eb;
+    background: #2563eb;
+    color: white;
+}
+
+.progress-step.completed .progress-step-circle {
+    border-color: #10b981;
+    background: #10b981;
+    color: white;
+}
+
+.progress-step-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.progress-step.active .progress-step-label {
+    color: #2563eb;
+}
+
+.section-card {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+}
+
+.section-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.section-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.section-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.form-input.with-icon {
+    padding-left: 44px;
+}
+
+.input-addon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.toggle-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 12px 16px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.toggle-switch:hover {
+    border-color: #cbd5e1;
+}
+
+.toggle-switch input[type="checkbox"] {
+    width: 48px;
+    height: 26px;
+    appearance: none;
+    background: #cbd5e1;
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-switch input[type="checkbox"]:checked {
+    background: #10b981;
+}
+
+.toggle-switch input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input[type="checkbox"]:checked::before {
+    left: 24px;
+}
+
+.toggle-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.credit-display {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.credit-item {
+    text-align: center;
+}
+
+.credit-item-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.credit-item-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.credit-item-value.positive {
+    color: #10b981;
+}
+
+.credit-item-value.negative {
+    color: #ef4444;
+}
+
+.credit-item-value.warning {
+    color: #f59e0b;
+}
+
+.action-bar {
+    display: flex;
+    gap: 12px;
+    padding-top: 32px;
+    border-top: 2px solid #e2e8f0;
+    margin-top: 32px;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.required-indicator {
+    color: #ef4444;
+    font-size: 16px;
+    margin-left: 4px;
+}
+
+.info-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: #dbeafe;
+    color: #1e40af;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .credit-display {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .form-progress {
+        flex-wrap: wrap;
+    }
+    
+    .progress-step {
+        flex: 0 0 50%;
+        margin-bottom: 20px;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="vendor-form-container">
-    <!-- Page Header -->
-    <div class="page-header-card">
-        <div class="header-content">
-            <h1 class="page-heading">
-                <i class="fas fa-{% if object %}edit{% else %}plus{% endif %}"></i>
-                {% if object %}Edit Vendor{% else %}Add New Vendor{% endif %}
-            </h1>
-            <p class="page-description">
-                {% if object %}Update vendor information{% else %}Fill in the details to add a new vendor{% endif %}
-            </p>
-        </div>
-        <div class="header-actions">
-            <a href="{% url 'dashboard:vendor_list' %}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i>
-                Back to List
-            </a>
-        </div>
+<div class="vendor-form-wrapper">
+    <div class="form-header">
+        <h1>
+            <i class="fas fa-{% if object %}edit{% else %}user-plus{% endif %}"></i>
+            {% if object %}Edit Vendor - {{ object.name }}{% else %}Add New Vendor{% endif %}
+        </h1>
+        <p>{% if object %}Update vendor details and credit information{% else %}Complete the form below to register a new vendor in the system{% endif %}</p>
     </div>
 
-    <!-- Form -->
-    <form method="post" id="vendorForm" class="vendor-form">
-        {% csrf_token %}
-        
-        {% if form.non_field_errors %}
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            {{ form.non_field_errors }}
-        </div>
-        {% endif %}
-        
-        <!-- Basic Information Section -->
-        <div class="form-section">
-            <h2 class="section-title">
-                <i class="fas fa-user"></i>
-                Basic Information
-            </h2>
-            
-            <div class="form-grid">
-                <div class="form-group {% if form.name.errors %}has-error{% endif %}">
-                    <label for="{{ form.name.id_for_label }}" class="form-label required">
-                        <i class="fas fa-user"></i>
-                        Vendor Name
-                    </label>
-                    {{ form.name }}
-                    {% if form.name.errors %}
-                    <span class="error-message">{{ form.name.errors.0 }}</span>
-                    {% endif %}
-                </div>
-                
-                <div class="form-group {% if form.company_name.errors %}has-error{% endif %}">
-                    <label for="{{ form.company_name.id_for_label }}" class="form-label">
-                        <i class="fas fa-building"></i>
-                        Company Name
-                    </label>
-                    {{ form.company_name }}
-                    {% if form.company_name.errors %}
-                    <span class="error-message">{{ form.company_name.errors.0 }}</span>
-                    {% endif %}
-                </div>
+    <div class="form-body">
+        <!-- Progress Steps -->
+        <div class="form-progress">
+            <div class="progress-step active" data-step="1">
+                <div class="progress-step-circle">1</div>
+                <div class="progress-step-label">Basic Info</div>
+            </div>
+            <div class="progress-step" data-step="2">
+                <div class="progress-step-circle">2</div>
+                <div class="progress-step-label">Contact</div>
+            </div>
+            <div class="progress-step" data-step="3">
+                <div class="progress-step-circle">3</div>
+                <div class="progress-step-label">Address</div>
+            </div>
+            <div class="progress-step" data-step="4">
+                <div class="progress-step-circle">4</div>
+                <div class="progress-step-label">Business</div>
             </div>
         </div>
 
-        <!-- Contact Information Section -->
-        <div class="form-section">
-            <h2 class="section-title">
-                <i class="fas fa-address-book"></i>
-                Contact Information
-            </h2>
+        <form method="post" id="vendorForm" novalidate>
+            {% csrf_token %}
             
-            <div class="form-grid">
-                <div class="form-group {% if form.phone.errors %}has-error{% endif %}">
-                    <label for="{{ form.phone.id_for_label }}" class="form-label required">
-                        <i class="fas fa-phone"></i>
-                        Phone Number
-                    </label>
-                    {{ form.phone }}
-                    {% if form.phone.errors %}
-                    <span class="error-message">{{ form.phone.errors.0 }}</span>
-                    {% endif %}
-                </div>
-                
-                <div class="form-group {% if form.email.errors %}has-error{% endif %}">
-                    <label for="{{ form.email.id_for_label }}" class="form-label">
-                        <i class="fas fa-envelope"></i>
-                        Email Address
-                    </label>
-                    {{ form.email }}
-                    {% if form.email.errors %}
-                    <span class="error-message">{{ form.email.errors.0 }}</span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Address Section -->
-        <div class="form-section">
-            <h2 class="section-title">
-                <i class="fas fa-map-marker-alt"></i>
-                Address Details
-            </h2>
-            
-            <div class="form-group {% if form.address.errors %}has-error{% endif %}">
-                <label for="{{ form.address.id_for_label }}" class="form-label required">
-                    <i class="fas fa-home"></i>
-                    Street Address
-                </label>
-                {{ form.address }}
-                {% if form.address.errors %}
-                <span class="error-message">{{ form.address.errors.0 }}</span>
-                {% endif %}
-            </div>
-            
-            <div class="form-grid grid-3">
-                <div class="form-group {% if form.city.errors %}has-error{% endif %}">
-                    <label for="{{ form.city.id_for_label }}" class="form-label required">
-                        <i class="fas fa-city"></i>
-                        City
-                    </label>
-                    {{ form.city }}
-                    {% if form.city.errors %}
-                    <span class="error-message">{{ form.city.errors.0 }}</span>
-                    {% endif %}
-                </div>
-                
-                <div class="form-group {% if form.state.errors %}has-error{% endif %}">
-                    <label for="{{ form.state.id_for_label }}" class="form-label required">
-                        <i class="fas fa-map"></i>
-                        State
-                    </label>
-                    {{ form.state }}
-                    {% if form.state.errors %}
-                    <span class="error-message">{{ form.state.errors.0 }}</span>
-                    {% endif %}
-                </div>
-                
-                <div class="form-group {% if form.pincode.errors %}has-error{% endif %}">
-                    <label for="{{ form.pincode.id_for_label }}" class="form-label required">
-                        <i class="fas fa-map-pin"></i>
-                        Pincode
-                    </label>
-                    {{ form.pincode }}
-                    {% if form.pincode.errors %}
-                    <span class="error-message">{{ form.pincode.errors.0 }}</span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Business Information Section -->
-        <div class="form-section">
-            <h2 class="section-title">
-                <i class="fas fa-briefcase"></i>
-                Business Information
-            </h2>
-            
-            <div class="form-grid">
-                <div class="form-group {% if form.gst_number.errors %}has-error{% endif %}">
-                    <label for="{{ form.gst_number.id_for_label }}" class="form-label">
-                        <i class="fas fa-file-invoice"></i>
-                        GST Number
-                    </label>
-                    {{ form.gst_number }}
-                    <small class="form-help">Optional: Enter if registered under GST</small>
-                    {% if form.gst_number.errors %}
-                    <span class="error-message">{{ form.gst_number.errors.0 }}</span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Credit Information Section -->
-        <div class="form-section">
-            <h2 class="section-title">
-                <i class="fas fa-credit-card"></i>
-                Credit Information
-            </h2>
-            
-            <div class="form-grid">
-                <div class="form-group {% if form.credit_limit.errors %}has-error{% endif %}">
-                    <label for="{{ form.credit_limit.id_for_label }}" class="form-label">
-                        <i class="fas fa-wallet"></i>
-                        Credit Limit (₹)
-                    </label>
-                    {{ form.credit_limit }}
-                    <small class="form-help">Maximum credit amount allowed</small>
-                    {% if form.credit_limit.errors %}
-                    <span class="error-message">{{ form.credit_limit.errors.0 }}</span>
-                    {% endif %}
-                </div>
-                
-                <div class="form-group {% if form.outstanding_balance.errors %}has-error{% endif %}">
-                    <label for="{{ form.outstanding_balance.id_for_label }}" class="form-label">
-                        <i class="fas fa-money-bill-wave"></i>
-                        Outstanding Balance (₹)
-                    </label>
-                    {{ form.outstanding_balance }}
-                    <small class="form-help">Current outstanding amount</small>
-                    {% if form.outstanding_balance.errors %}
-                    <span class="error-message">{{ form.outstanding_balance.errors.0 }}</span>
-                    {% endif %}
-                </div>
-            </div>
-            
-            {% if object %}
-            <div class="credit-summary">
-                <div class="summary-item">
-                    <span class="summary-label">Available Credit:</span>
-                    <span class="summary-value">₹{{ object.available_credit|floatformat:2 }}</span>
-                </div>
+            {% if form.non_field_errors %}
+            <div class="alert alert-error alert-dismissible" style="margin-bottom: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>{{ form.non_field_errors }}</span>
+                <button type="button" onclick="this.parentElement.remove()">×</button>
             </div>
             {% endif %}
-        </div>
+            
+            <!-- Basic Information -->
+            <div class="section-card" data-section="1">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h3>Basic Information</h3>
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group {% if form.name.errors %}has-error{% endif %}">
+                        <label class="form-label">
+                            Vendor/Customer Name
+                            <span class="required-indicator">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="input-icon fas fa-user"></i>
+                            {{ form.name }}
+                        </div>
+                        {% if form.name.errors %}
+                        <span class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.name.errors.0 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group {% if form.company_name.errors %}has-error{% endif %}">
+                        <label class="form-label">
+                            Company Name
+                            <span class="info-badge"><i class="fas fa-info-circle"></i> Optional</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="input-icon fas fa-building"></i>
+                            {{ form.company_name }}
+                        </div>
+                        {% if form.company_name.errors %}
+                        <span class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.company_name.errors.0 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
 
-        <!-- Form Actions -->
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary btn-lg">
-                <i class="fas fa-{% if object %}save{% else %}plus-circle{% endif %}"></i>
-                {% if object %}Update Vendor{% else %}Create Vendor{% endif %}
-            </button>
-            <a href="{% url 'dashboard:vendor_list' %}" class="btn btn-secondary btn-lg">
-                <i class="fas fa-times"></i>
-                Cancel
-            </a>
-        </div>
-    </form>
+            <!-- Contact Information -->
+            <div class="section-card" data-section="2">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div>
+                        <h3>Contact Information</h3>
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group {% if form.phone.errors %}has-error{% endif %}">
+                        <label class="form-label">
+                            Phone Number
+                            <span class="required-indicator">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="input-icon fas fa-phone"></i>
+                            {{ form.phone }}
+                        </div>
+                        <small class="form-help">Enter 10-digit mobile number</small>
+                        {% if form.phone.errors %}
+                        <span class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.phone.errors.0 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group {% if form.email.errors %}has-error{% endif %}">
+                        <label class="form-label">
+                            Email Address
+                            <span class="info-badge"><i class="fas fa-info-circle"></i> Optional</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="input-icon fas fa-envelope"></i>
+                            {{ form.email }}
+                        </div>
+                        <small class="form-help">For sending invoices and notifications</small>
+                        {% if form.email.errors %}
+                        <span class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.email.errors.0 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Information -->
+            <div class="section-card" data-section="3">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div>
+                        <h3>Address Details</h3>
+                    </div>
+                </div>
+                
+                <div class="form-group {% if form.address.errors %}has-error{% endif %}">
+                    <label class="form-label">
+                        Street Address
+                        <span class="required-indicator">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="input-icon fas fa-home"></i>
+                        {{ form.address }}
+                    </div>
+                    {% if form.address.errors %}
+                    <span class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.address.errors.0 }}
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-grid grid-3" style="margin-top: 20px;">
+                    <div class="form-group {% if form.city.errors %}has-error{% endif %}">
+                        <label class="form-label">
+                            City
+                            <span class="required-indicator">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="input-icon fas fa-city"></i>
+                            {{ form.city }}
+                        </div>
+                        {% if form.city.errors %}
+                        <span class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.city.errors.0 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group {% if form.state.errors %}has-error{% endif %}">
+                        <label class="form-label">
+                            State
+                            <span class="required-indicator">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="input-icon fas fa-map"></i>
+                            {{ form.state }}
+                        </div>
+                        {% if form.state.errors %}
+                        <span class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.state.errors.0 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group {% if form.pincode.errors %}has-error{% endif %}">
+                        <label class="form-label">
+                            PIN Code
+                            <span class="required-indicator">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="input-icon fas fa-map-pin"></i>
+                            {{ form.pincode }}
+                        </div>
+                        <small class="form-help">6-digit postal code</small>
+                        {% if form.pincode.errors %}
+                        <span class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.pincode.errors.0 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business & Credit Information -->
+            <div class="section-card" data-section="4">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div>
+                        <h3>Business & Credit Information</h3>
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group {% if form.gst_number.errors %}has-error{% endif %}">
+                        <label class="form-label">
+                            GST Number
+                            <span class="info-badge"><i class="fas fa-info-circle"></i> Optional</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="input-icon fas fa-file-invoice"></i>
+                            {{ form.gst_number }}
+                        </div>
+                        <small class="form-help">15-character GSTIN (e.g., 22AAAAA0000A1Z5)</small>
+                        {% if form.gst_number.errors %}
+                        <span class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.gst_number.errors.0 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group {% if form.is_active.errors %}has-error{% endif %}">
+                        <label class="form-label">Vendor Status</label>
+                        <label class="toggle-switch">
+                            {{ form.is_active }}
+                            <span class="toggle-label">
+                                <i class="fas fa-check-circle"></i>
+                                Active (Can place orders)
+                            </span>
+                        </label>
+                        {% if form.is_active.errors %}
+                        <span class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.is_active.errors.0 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-grid" style="margin-top: 20px;">
+                    <div class="form-group {% if form.credit_limit.errors %}has-error{% endif %}">
+                        <label class="form-label">Credit Limit</label>
+                        <div class="input-wrapper">
+                            <i class="input-icon fas fa-rupee-sign"></i>
+                            {{ form.credit_limit }}
+                            <span class="input-addon">INR</span>
+                        </div>
+                        <small class="form-help">Maximum credit allowed for this vendor</small>
+                        {% if form.credit_limit.errors %}
+                        <span class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.credit_limit.errors.0 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group {% if form.outstanding_balance.errors %}has-error{% endif %}">
+                        <label class="form-label">Outstanding Balance</label>
+                        <div class="input-wrapper">
+                            <i class="input-icon fas fa-money-bill-wave"></i>
+                            {{ form.outstanding_balance }}
+                            <span class="input-addon">INR</span>
+                        </div>
+                        <small class="form-help">Current pending payment amount</small>
+                        {% if form.outstanding_balance.errors %}
+                        <span class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.outstanding_balance.errors.0 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Credit Summary -->
+                <div class="credit-display">
+                    <div class="credit-item">
+                        <div class="credit-item-label">Credit Limit</div>
+                        <div class="credit-item-value" id="displayLimit">
+                            ₹{% if object %}{{ object.credit_limit|floatformat:2 }}{% else %}0.00{% endif %}
+                        </div>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-item-label">Outstanding</div>
+                        <div class="credit-item-value" id="displayOutstanding">
+                            ₹{% if object %}{{ object.outstanding_balance|floatformat:2 }}{% else %}0.00{% endif %}
+                        </div>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-item-label">Available Credit</div>
+                        <div class="credit-item-value positive" id="displayAvailable">
+                            ₹{% if object %}{{ object.available_credit|floatformat:2 }}{% else %}0.00{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-bar">
+                <button type="submit" class="btn btn-primary btn-lg btn-icon">
+                    <i class="fas fa-{% if object %}save{% else %}check-circle{% endif %}"></i>
+                    {% if object %}Update Vendor{% else %}Create Vendor{% endif %}
+                </button>
+                <a href="{% url 'dashboard:vendor_list' %}" class="btn btn-secondary btn-lg btn-icon">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to List
+                </a>
+                {% if object %}
+                <button type="button" onclick="confirmDelete()" class="btn btn-danger btn-lg btn-icon" style="margin-left: auto;">
+                    <i class="fas fa-trash-alt"></i>
+                    Deactivate Vendor
+                </button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Form validation
     const form = document.getElementById('vendorForm');
+    const creditLimit = document.querySelector('[name="credit_limit"]');
+    const outstanding = document.querySelector('[name="outstanding_balance"]');
+    const displayLimit = document.getElementById('displayLimit');
+    const displayOutstanding = document.getElementById('displayOutstanding');
+    const displayAvailable = document.getElementById('displayAvailable');
     
-    form.addEventListener('submit', function(e) {
-        let isValid = true;
-        
-        // Check required fields
-        const requiredFields = form.querySelectorAll('[required]');
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                isValid = false;
-                field.classList.add('error');
-            } else {
-                field.classList.remove('error');
+    // Make form inputs have proper classes
+    const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="number"], textarea');
+    inputs.forEach(input => {
+        if (!input.classList.contains('form-checkbox')) {
+            input.classList.add('form-input');
+            if (input.closest('.input-wrapper')?.querySelector('.input-icon')) {
+                input.classList.add('with-icon');
             }
-        });
-        
-        if (!isValid) {
-            e.preventDefault();
-            alert('Please fill in all required fields');
         }
     });
     
-    // Calculate available credit
-    const creditLimit = document.querySelector('[name="credit_limit"]');
-    const outstanding = document.querySelector('[name="outstanding_balance"]');
-    
-    if (creditLimit && outstanding) {
-        [creditLimit, outstanding].forEach(field => {
-            field.addEventListener('input', updateAvailableCredit);
-        });
-    }
-    
-    function updateAvailableCredit() {
+    // Real-time credit calculation
+    function updateCreditDisplay() {
         const limit = parseFloat(creditLimit.value) || 0;
         const outstandingAmt = parseFloat(outstanding.value) || 0;
         const available = limit - outstandingAmt;
         
-        // Update display if summary exists
-        const summaryValue = document.querySelector('.credit-summary .summary-value');
-        if (summaryValue) {
-            summaryValue.textContent = `₹${available.toFixed(2)}`;
+        displayLimit.textContent = `₹${limit.toFixed(2)}`;
+        displayOutstanding.textContent = `₹${outstandingAmt.toFixed(2)}`;
+        displayAvailable.textContent = `₹${available.toFixed(2)}`;
+        
+        // Color coding
+        displayAvailable.classList.remove('positive', 'negative', 'warning');
+        if (available < 0) {
+            displayAvailable.classList.add('negative');
+        } else if (available < limit * 0.2) {
+            displayAvailable.classList.add('warning');
+        } else {
+            displayAvailable.classList.add('positive');
         }
     }
+    
+    if (creditLimit && outstanding) {
+        creditLimit.addEventListener('input', updateCreditDisplay);
+        outstanding.addEventListener('input', updateCreditDisplay);
+        updateCreditDisplay();
+    }
+    
+    // Phone number formatting (removed validation)
+    const phoneInput = document.querySelector('[name="phone"]');
+    
+    // GST number formatting
+    const gstInput = document.querySelector('[name="gst_number"]');
+    if (gstInput) {
+        gstInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+            if (this.value.length > 15) {
+                this.value = this.value.substr(0, 15);
+            }
+        });
+    }
+    
+    // PIN code validation
+    const pincodeInput = document.querySelector('[name="pincode"]');
+    if (pincodeInput) {
+        pincodeInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 6) value = value.substr(0, 6);
+            this.value = value;
+        });
+    }
+    
+    // Form section tracking for progress
+    const sections = form.querySelectorAll('.section-card');
+    const progressSteps = document.querySelectorAll('.progress-step');
+    
+    function updateProgress() {
+        sections.forEach((section, index) => {
+            const inputs = section.querySelectorAll('input[required], textarea[required]');
+            let allFilled = true;
+            
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    allFilled = false;
+                }
+            });
+            
+            if (allFilled && inputs.length > 0) {
+                progressSteps[index]?.classList.add('completed');
+            } else {
+                progressSteps[index]?.classList.remove('completed');
+            }
+        });
+    }
+    
+    // Update progress on input
+    form.addEventListener('input', updateProgress);
+    updateProgress();
+    
+    // Scroll to section on progress click
+    progressSteps.forEach((step, index) => {
+        step.addEventListener('click', function() {
+            sections[index]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+    
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        let hasErrors = false;
+        
+        // Clear previous errors
+        form.querySelectorAll('.error-message').forEach(error => {
+            if (!error.textContent.includes('{{ form.')) {
+                error.remove();
+            }
+        });
+        
+        form.querySelectorAll('.has-error').forEach(group => {
+            group.classList.remove('has-error');
+        });
+        
+        // Validate required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                hasErrors = true;
+                showFieldError(field, 'This field is required');
+            }
+        });
+        
+        // Validate PIN code
+        if (pincodeInput && pincodeInput.value) {
+            const pinDigits = pincodeInput.value.replace(/\D/g, '');
+            if (pinDigits.length !== 6) {
+                hasErrors = true;
+                showFieldError(pincodeInput, 'PIN code must be 6 digits');
+            }
+        }
+        
+        // Validate GST if provided
+        if (gstInput && gstInput.value && gstInput.value.length !== 15) {
+            hasErrors = true;
+            showFieldError(gstInput, 'GST number must be 15 characters');
+        }
+        
+        // Validate credit
+        const limit = parseFloat(creditLimit.value) || 0;
+        const outstandingAmt = parseFloat(outstanding.value) || 0;
+        if (outstandingAmt > limit && limit > 0) {
+            hasErrors = true;
+            showFieldError(outstanding, 'Outstanding cannot exceed credit limit');
+        }
+        
+        if (hasErrors) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Show error notification
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-error';
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Please correct the errors below</span>';
+            errorDiv.style.marginBottom = '20px';
+            form.insertBefore(errorDiv, form.firstChild);
+            
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+    });
+    
+    function showFieldError(field, message) {
+        const formGroup = field.closest('.form-group');
+        if (formGroup) {
+            formGroup.classList.add('has-error');
+            
+            const errorSpan = document.createElement('span');
+            errorSpan.className = 'error-message';
+            errorSpan.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            formGroup.appendChild(errorSpan);
+        }
+    }
+    
+    // Focus animations
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.closest('.section-card')?.style.setProperty('border-color', '#2563eb');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.closest('.section-card')?.style.setProperty('border-color', '');
+        });
+    });
 });
+
+{% if object %}
+function confirmDelete() {
+    if (confirm('⚠️ Are you sure you want to deactivate "{{ object.name }}"?\n\nThis vendor will no longer be able to place new orders.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "dashboard:vendor_delete" object.pk %}';
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        
+        form.appendChild(csrfInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+{% endif %}
 </script>
 {% endblock %}
